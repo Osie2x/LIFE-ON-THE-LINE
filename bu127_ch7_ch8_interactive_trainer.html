@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BU127 Chapter 7 -> 8 Interactive Midterm Trainer</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.14);
+      --line: rgba(255, 255, 255, 0.18);
+      --text: #f5f7fb;
+      --muted: #aebbd1;
+      --blue: #7dd3fc;
+      --cyan: #22d3ee;
+      --green: #86efac;
+      --yellow: #fde68a;
+      --orange: #fb923c;
+      --red: #fca5a5;
+      --purple: #c4b5fd;
+      --shadow: 0 24px 90px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(34, 211, 238, 0.22), transparent 34rem),
+        radial-gradient(circle at 82% 15%, rgba(196, 181, 253, 0.18), transparent 33rem),
+        linear-gradient(135deg, #07111f 0%, #111827 52%, #061322 100%);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+    }
+
+    a { color: var(--blue); }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1560px;
+      margin: 0 auto;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(7, 17, 31, 0.78);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #03111d;
+      font-weight: 900;
+      box-shadow: 0 12px 35px rgba(34, 211, 238, 0.24);
+    }
+
+    .brand h1 {
+      font-size: 1.05rem;
+      line-height: 1.15;
+      margin: 0;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .micro-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .metric {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .metric strong {
+      font-size: 1.25rem;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      margin: 10px 0 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow));
+      border-radius: inherit;
+      transition: width 0.55s ease;
+    }
+
+    .stage-nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stage-link {
+      text-align: left;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid transparent;
+      border-radius: 16px;
+      transition: transform 0.18s ease, border 0.18s ease, background 0.18s ease;
+    }
+
+    .stage-link:hover,
+    .stage-link.active {
+      transform: translateY(-1px);
+      background: rgba(125, 211, 252, 0.12);
+      border-color: rgba(125, 211, 252, 0.45);
+    }
+
+    .stage-link .badge {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: rgba(125, 211, 252, 0.16);
+      color: var(--blue);
+      font-weight: 900;
+      border: 1px solid rgba(125, 211, 252, 0.28);
+    }
+
+    .stage-link small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .stage-link.done .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(134, 239, 172, 0.12);
+    }
+
+    .side-actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      color: #04111e;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      font-weight: 850;
+      box-shadow: 0 14px 30px rgba(34, 211, 238, 0.16);
+    }
+
+    .btn.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.warn {
+      color: #241203;
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    main {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background:
+        linear-gradient(135deg, rgba(125, 211, 252, 0.17), rgba(196, 181, 253, 0.12)),
+        rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero:after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -120px auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(134, 239, 172, 0.14);
+      filter: blur(8px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      color: var(--blue);
+      background: rgba(125, 211, 252, 0.09);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 4vw, 4.5rem);
+      line-height: 0.96;
+      margin: 18px 0 14px;
+      letter-spacing: -0.06em;
+    }
+
+    .hero p {
+      max-width: 980px;
+      color: #dbe7fb;
+      font-size: 1.05rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .hero-card,
+    .card,
+    .stage {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    }
+
+    .hero-card {
+      padding: 14px;
+    }
+
+    .hero-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.04rem;
+    }
+
+    .hero-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .card h3,
+    .stage h3 {
+      margin-top: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .session-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .study-flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .flow-step {
+      min-height: 92px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flow-step:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      transform: translateX(-110%);
+      animation: sweep 5s ease-in-out infinite;
+    }
+
+    .flow-step strong {
+      display: block;
+      color: var(--green);
+      margin-bottom: 3px;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    @keyframes sweep {
+      0%, 45% { transform: translateX(-110%); }
+      65%, 100% { transform: translateX(110%); }
+    }
+
+    .stage {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .stage-header {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stage-header h3 {
+      margin-bottom: 4px;
+      font-size: 1.45rem;
+    }
+
+    .stage-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .stage-body {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .concept {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(7, 17, 31, 0.36);
+    }
+
+    .concept strong {
+      color: var(--yellow);
+    }
+
+    .concept p {
+      color: #d4def0;
+      margin: 6px 0 0;
+      font-size: 0.94rem;
+    }
+
+    .coach {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px dashed rgba(125, 211, 252, 0.45);
+      background: rgba(125, 211, 252, 0.08);
+    }
+
+    .coach strong {
+      color: var(--blue);
+    }
+
+    .memory {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(134, 239, 172, 0.09);
+      border: 1px solid rgba(134, 239, 172, 0.22);
+    }
+
+    .memory strong {
+      color: var(--green);
+    }
+
+    .visual-panel {
+      min-height: 310px;
+      border-radius: 20px;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+        rgba(0, 0, 0, 0.12);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .visual-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 900;
+    }
+
+    .inventory-layers {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      height: 180px;
+      padding: 15px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .layer {
+      flex: 1;
+      min-width: 62px;
+      border-radius: 15px 15px 8px 8px;
+      display: grid;
+      place-items: center;
+      color: #04111e;
+      font-weight: 900;
+      text-align: center;
+      padding: 8px;
+      transform-origin: bottom;
+      animation: pop 0.65s ease both;
+      position: relative;
+    }
+
+    .layer small {
+      display: block;
+      color: rgba(4, 17, 30, 0.75);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .layer.sold:after {
+      content: "SOLD";
+      position: absolute;
+      inset: 8px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(252, 165, 165, 0.85);
+      color: #3c0707;
+      transform: rotate(-8deg);
+      border: 2px solid rgba(60, 7, 7, 0.2);
+    }
+
+    @keyframes pop {
+      from { transform: scaleY(0.15); opacity: 0; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    .debit-credit {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .dc-column {
+      min-height: 126px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dc-column h4 {
+      margin: 0 0 10px;
+      color: var(--blue);
+    }
+
+    .dc-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      margin: 6px 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      animation: slideIn 0.45s ease both;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .asset-meter {
+      height: 220px;
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 16px;
+      align-items: end;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+    }
+
+    .asset-tank {
+      height: 190px;
+      border-radius: 18px;
+      border: 2px solid rgba(125, 211, 252, 0.38);
+      overflow: hidden;
+      display: flex;
+      align-items: end;
+      background: rgba(255, 255, 255, 0.04);
+      position: relative;
+    }
+
+    .asset-fill {
+      width: 100%;
+      height: 78%;
+      background: linear-gradient(0deg, var(--green), var(--cyan));
+      animation: drain 3.8s ease-in-out infinite alternate;
+    }
+
+    .asset-tank:after {
+      content: "BV";
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: 950;
+      color: #e6f7ff;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.45);
+    }
+
+    @keyframes drain {
+      from { height: 88%; }
+      to { height: 38%; }
+    }
+
+    .formula-stack {
+      display: grid;
+      gap: 9px;
+    }
+
+    .formula {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-family: var(--mono);
+      color: #e8f7ff;
+    }
+
+    .quiz-zone {
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 17px;
+      background: rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .question-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 7px 0 10px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .difficulty {
+      color: #08111d;
+      background: var(--yellow);
+      border-color: rgba(253, 230, 138, 0.5);
+      font-weight: 900;
+    }
+
+    .prompt {
+      margin: 0;
+      color: #f6f8ff;
+      font-weight: 750;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      padding: 11px 12px;
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: transform 0.15s ease, border 0.15s ease, background 0.15s ease;
+    }
+
+    .option:hover {
+      transform: translateX(3px);
+      border-color: rgba(125, 211, 252, 0.38);
+    }
+
+    .option.correct {
+      background: rgba(134, 239, 172, 0.15);
+      border-color: rgba(134, 239, 172, 0.55);
+    }
+
+    .option.wrong {
+      background: rgba(252, 165, 165, 0.14);
+      border-color: rgba(252, 165, 165, 0.5);
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+      font-family: var(--mono);
+      line-height: 1.45;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.12);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+    .feedback.good {
+      border-color: rgba(134, 239, 172, 0.45);
+      background: rgba(134, 239, 172, 0.1);
+    }
+    .feedback.bad {
+      border-color: rgba(252, 165, 165, 0.45);
+      background: rgba(252, 165, 165, 0.09);
+    }
+
+    .must-redo {
+      display: none;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 15px;
+      background: rgba(252, 165, 165, 0.12);
+      border: 1px solid rgba(252, 165, 165, 0.38);
+      color: #ffe6e6;
+    }
+
+    .must-redo.show { display: block; }
+
+    .complete-banner {
+      display: none;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(134, 239, 172, 0.12);
+      border: 1px solid rgba(134, 239, 172, 0.42);
+    }
+
+    .complete-banner.show { display: block; }
+
+    .scratch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: left;
+    }
+
+    th {
+      color: var(--blue);
+      background: rgba(125, 211, 252, 0.08);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .exam-mode {
+      display: grid;
+      gap: 14px;
+    }
+
+    .exam-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mini-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .focus-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timer {
+      display: grid;
+      place-items: center;
+      height: 130px;
+      border-radius: 22px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.22), rgba(255, 255, 255, 0.05));
+      border: 1px solid rgba(125, 211, 252, 0.28);
+    }
+
+    .timer strong {
+      font-size: 2.6rem;
+      font-family: var(--mono);
+      letter-spacing: -0.06em;
+    }
+
+    .typing-drill {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .typing-drill label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .callout {
+      border-left: 4px solid var(--orange);
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(251, 146, 60, 0.1);
+      color: #ffe7d4;
+    }
+
+    .print-only { display: none; }
+
+    @media (max-width: 1100px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position: relative; top: 0; max-height: none; }
+      .hero-grid, .study-flow { grid-template-columns: repeat(2, 1fr); }
+      .two-col, .session-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .app-shell { padding: 10px; }
+      .hero, .stage-header, .stage-body, .card { padding: 16px; }
+      .hero-grid, .concept-grid, .study-flow, .scratch-grid { grid-template-columns: 1fr; }
+      .answer-row { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      .sidebar, .btn, .options, .answer-row, .feedback, .must-redo { display: none !important; }
+      .app-shell { display: block; padding: 0; }
+      .hero, .card, .stage { box-shadow: none; border: 1px solid #bbb; break-inside: avoid; }
+      .print-only { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">BU</div>
+        <div>
+          <h1>BU127 Ch. 7 -> Ch. 8 Trainer</h1>
+          <p>Condensed inventory foundation, then rigorous PPE reps.</p>
+        </div>
+      </div>
+
+      <div class="micro-dashboard" aria-live="polite">
+        <div class="metric"><span>Stages complete</span><strong id="stageCount">0/10</strong></div>
+        <div class="metric"><span>Question XP</span><strong id="xpCount">0</strong></div>
+      </div>
+      <div class="progress-bar" aria-label="Overall progress"><div class="progress-fill" id="overallProgress"></div></div>
+      <nav class="stage-nav" id="stageNav" aria-label="Study stages"></nav>
+
+      <div class="side-actions">
+        <button class="btn" id="startFocus">Start 15-min body double</button>
+        <button class="btn secondary" id="jumpExam">Mixed exam sprint</button>
+        <button class="btn secondary" id="printPack">Print note skeleton</button>
+        <button class="btn warn" id="resetProgress">Reset progress</button>
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" id="top">
+        <span class="eyebrow">Tuesday Jun 30 kickoff -> Connect Ch. 8 due Jul 3</span>
+        <h2>Learn Chapter 7 fast, then attack Chapter 8 like a midterm.</h2>
+        <p>
+          This is a one-file interactive study system: SQ4R for first exposure, active recall for memory,
+          typed journal/calculation reps for digital exams, body-doubling timers for focus, and staged
+          checkpoint gates so a wrong answer turns into immediate repair before you move on.
+        </p>
+        <div class="hero-grid">
+          <div class="hero-card"><strong>Chapter 7 is a speed-run.</strong><span>Inventory fundamentals, FIFO/weighted-average, lower of cost and NRV, ratios.</span></div>
+          <div class="hero-card"><strong>Chapter 8 is the grind.</strong><span>PPE acquisition, depreciation, revisions, disposals, intangibles, impairment.</span></div>
+          <div class="hero-card"><strong>Midterm style first.</strong><span>Multi-step calculations, conceptual traps, and typed journal entry practice.</span></div>
+          <div class="hero-card"><strong>Interleaving built in.</strong><span>Chapter 8 stages pull back Chapter 7 inventory questions so memory stays alive.</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Your SQ4R + ADHD-friendly session structure</h3>
+        <p class="mini-note">Use this as the ritual before every stage. The goal is not pretty notes; the goal is retrieval under exam pressure.</p>
+        <div class="study-flow">
+          <div class="flow-step"><strong>Survey</strong><span>Scan headings and the stage cheat sheet.</span></div>
+          <div class="flow-step"><strong>Question</strong><span>Turn each heading into "Could I solve this?"</span></div>
+          <div class="flow-step"><strong>Read</strong><span>Read the micro-lesson once, slowly.</span></div>
+          <div class="flow-step"><strong>Write</strong><span>Type the rule or formula in your own words.</span></div>
+          <div class="flow-step"><strong>Recite</strong><span>Close notes. Explain the accounting logic out loud.</span></div>
+          <div class="flow-step"><strong>Review</strong><span>Do the checkpoint until every miss is repaired.</span></div>
+        </div>
+      </section>
+
+      <section class="session-grid">
+        <div class="card focus-panel">
+          <h3>Body double focus timer</h3>
+          <p class="mini-note">Press start, say out loud what you are doing, then work only on the current stage until the timer ends.</p>
+          <div class="timer"><strong id="timerDisplay">15:00</strong></div>
+          <div class="exam-controls">
+            <button class="btn" id="timerToggle">Start</button>
+            <button class="btn secondary" id="timerReset">Reset</button>
+          </div>
+          <div class="callout">Body-double script: "For the next 15 minutes I am doing one accounting rep at a time. If I miss, I repair. No shame, only reps."</div>
+        </div>
+        <div class="card">
+          <h3>Jun 30 -> Jul 3 sprint map</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Checkpoint</th><th>What to finish</th><th>Success signal</th></tr></thead>
+              <tbody>
+                <tr><td>Jun 30 start</td><td>Stages A-E: Chapter 7 speed foundation</td><td>You can compute FIFO/weighted average and explain inventory error effects.</td></tr>
+                <tr><td>Canada Day light pass</td><td>Stages F-G: PPE cost and depreciation mechanics</td><td>You can type formulas without looking.</td></tr>
+                <tr><td>Pre-Connect push</td><td>Stages H-I: disposals, intangibles, Ch. 8 sprint</td><td>You can handle journal entries and gain/loss logic.</td></tr>
+                <tr><td>Final review</td><td>Stage J mixed exam sprint</td><td>80%+ with corrections for every miss.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div id="stages"></div>
+
+      <section class="card exam-mode" id="mixed-exam">
+        <h3>Bonus randomizer: mixed Chapter 7/8 midterm sprint</h3>
+        <p class="mini-note">Use this after any stage or right before Connect. It pulls from the full bank and mixes concepts on purpose.</p>
+        <div class="exam-controls">
+          <button class="btn" id="generateExam">Generate 10-question sprint</button>
+          <button class="btn secondary" id="clearExam">Clear sprint</button>
+          <span id="examScore" class="tag difficulty">No sprint yet</span>
+        </div>
+        <div id="examQuestions" class="quiz-zone"></div>
+      </section>
+
+      <section class="card print-only">
+        <h3>Printable skeleton</h3>
+        <p>Ch. 7 rules: Inventory cost includes costs to get goods ready for sale. Perpetual sales need two entries. FIFO uses oldest costs first for COGS. Weighted average smooths costs. Ending inventory errors reverse next period. Lower of cost and NRV prevents overstatement.</p>
+        <p>Ch. 8 rules: Capitalize costs needed to acquire and prepare PPE for use. Depreciation allocates cost, not value. Revisions are prospective. Disposal removes cost and accumulated depreciation, then compares proceeds to book value. Intangibles with finite life are amortized; indefinite-life assets are tested for impairment.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "bu127_ch7_ch8_trainer_v1";
+
+    const stages = [
+      {
+        id: "A",
+        title: "Chapter 7 Survey: inventory map in one pass",
+        chapter: "Ch. 7",
+        pace: "Fast foundation",
+        visual: "inventory",
+        coach: "Survey the chapter like a checklist: What is inventory? What costs enter inventory? What happens when a sale occurs? What can go wrong with counting inventory?",
+        memory: "Core sentence: Inventory is a current asset until sold; when sold, its cost moves to COGS on the income statement.",
+        concepts: [
+          ["Inventory definition", "Goods held for sale in normal operations. For a merchandiser, inventory is usually the largest current asset and drives COGS."],
+          ["Cost principle", "Inventory includes purchase price plus costs needed to bring goods to the location and condition for sale, such as freight-in."],
+          ["Perpetual system", "Inventory is updated every time goods are purchased or sold. A sale has a revenue entry and a COGS/inventory entry."],
+          ["Exam trap", "Shipping terms matter: FOB shipping point means buyer owns goods once shipped; FOB destination means seller owns goods until delivered."]
+        ],
+        drill: "Type the one-sentence difference between inventory as an asset and COGS as an expense.",
+        questions: ["q1", "q2", "q3", "q4"]
+      },
+      {
+        id: "B",
+        title: "Chapter 7 Mechanics: perpetual entries and ownership traps",
+        chapter: "Ch. 7",
+        pace: "Connect + midterm mechanics",
+        visual: "journal",
+        coach: "When a question says perpetual, make yourself ask: Is this a purchase event, a sale event, a return/allowance, or a shipping/discount event?",
+        memory: "Perpetual sale entry: first record revenue and receivable/cash; second record COGS and reduce Inventory.",
+        concepts: [
+          ["Purchase entry", "Debit Inventory for goods purchased; credit Cash or Accounts Payable. Freight-in paid by buyer also debits Inventory."],
+          ["Purchase return/discount", "Under perpetual inventory, returns and purchase discounts reduce Inventory, not a separate purchases account."],
+          ["Sale entry", "Debit Cash/A/R and credit Sales Revenue; debit COGS and credit Inventory for the cost side."],
+          ["Consignment", "Goods held on consignment by another company still belong to the consignor, not the consignee."]
+        ],
+        interleave: "Before this stage, redo one Stage A ownership question from memory.",
+        drill: "Type the two entries for a sale on account of goods costing $320 sold for $500.",
+        questions: ["q5", "q6", "q7", "q8"]
+      },
+      {
+        id: "C",
+        title: "Chapter 7 Cost Flow: FIFO and weighted-average",
+        chapter: "Ch. 7",
+        pace: "Calculation reps",
+        visual: "inventory",
+        coach: "Cost-flow questions are not about which physical unit was sold unless the method is specific identification. Build the layer table first, then sell units according to the assumed flow.",
+        memory: "In rising prices, FIFO gives lower COGS, higher ending inventory, and higher gross profit than weighted average.",
+        concepts: [
+          ["FIFO", "First costs in are assigned first to COGS. Ending inventory contains the most recent costs."],
+          ["Weighted average", "Average cost per unit = cost of goods available for sale / units available. In perpetual systems, update the average after each purchase."],
+          ["Specific identification", "Use actual cost of the specific units sold. Common for expensive, unique items."],
+          ["Gross profit", "Sales revenue minus COGS. Cost-flow method affects COGS and therefore gross profit."]
+        ],
+        interleave: "After this stage, answer one perpetual-entry question again so journal logic stays fresh.",
+        drill: "Type the FIFO layer steps for: 10 @ $5, buy 20 @ $7, sell 18.",
+        questions: ["q9", "q10", "q11", "q12", "q13"]
+      },
+      {
+        id: "D",
+        title: "Chapter 7 Quality Control: NRV, errors, ratios",
+        chapter: "Ch. 7",
+        pace: "Midterm traps",
+        visual: "inventory",
+        coach: "This stage is about judgment. If inventory is overstated, assets and equity are overstated. If ending inventory is overstated, COGS is understated and net income is overstated.",
+        memory: "Ending inventory error effect: EI up -> COGS down -> NI up. Next period the effect reverses through beginning inventory.",
+        concepts: [
+          ["Lower of cost and NRV", "Inventory is reported at the lower of its cost and net realizable value. NRV is expected selling price less costs to complete and sell."],
+          ["Write-down", "A decline below cost is recognized so inventory is not overstated."],
+          ["Inventory turnover", "COGS / average inventory. Higher turnover usually means inventory sells faster."],
+          ["Days to sell", "365 / inventory turnover. Converts turnover into the average days inventory is held."]
+        ],
+        drill: "Type the effect on COGS and net income if ending inventory is overstated.",
+        questions: ["q14", "q15", "q16", "q17"]
+      },
+      {
+        id: "E",
+        title: "Chapter 7 Cumulative Sprint",
+        chapter: "Ch. 7",
+        pace: "Finish fast, repair misses",
+        visual: "journal",
+        coach: "This is the checkpoint before Chapter 8. Do not aim to feel ready. Aim to answer, miss, repair, and repeat until the basics are automatic.",
+        memory: "Chapter 7 unlock phrase: inventory starts as an asset, leaves through COGS, and must be valued conservatively.",
+        concepts: [
+          ["What matters for Ch. 8", "Chapter 8 also starts with cost principle, then moves cost from asset to expense through depreciation/amortization."],
+          ["Transfer idea", "Inventory -> COGS when sold. PPE -> depreciation expense over useful life. Both are asset-cost allocation problems."],
+          ["Exam workflow", "Label the asset, identify the event, pick the measurement rule, then compute the income statement effect."],
+          ["Typed exam habit", "Always show formula, substitution, answer, and one sentence explaining direction of effect."]
+        ],
+        interleave: "After every Chapter 8 stage, return here for one mixed inventory rep.",
+        drill: "Type the bridge between Chapter 7 and Chapter 8 in your own words.",
+        questions: ["q18", "q19", "q20", "q21"]
+      },
+      {
+        id: "F",
+        title: "Chapter 8 Survey: PPE cost and capitalization",
+        chapter: "Ch. 8",
+        pace: "Core teaching",
+        visual: "asset",
+        coach: "Chapter 8 starts exactly like inventory: what costs get into the asset? The answer is all normal and necessary costs to acquire the asset and prepare it for its intended use.",
+        memory: "Capitalized cost is not just sticker price. It includes the costs required to get the asset ready for use.",
+        concepts: [
+          ["PPE definition", "Property, plant, and equipment are tangible long-lived assets used in operations, not held for resale."],
+          ["Capitalize", "Record as an asset when the cost provides future benefit and is necessary to get the asset ready for use."],
+          ["Expense", "Record immediately when the cost maintains normal operating condition without extending useful life or improving productivity."],
+          ["Land vs land improvements", "Land is not depreciated. Land improvements like parking lots, fences, and lighting are depreciated."]
+        ],
+        interleave: "Interleave: both inventory and PPE use the cost principle, but inventory is sold; PPE is used.",
+        drill: "Type which costs should be capitalized for a new delivery van: purchase price, taxes, license, insurance, paint logo, oil change.",
+        questions: ["q22", "q23", "q24", "q25"]
+      },
+      {
+        id: "G",
+        title: "Chapter 8 Depreciation: formulas and revisions",
+        chapter: "Ch. 8",
+        pace: "Heavy calculation reps",
+        visual: "asset",
+        coach: "Depreciation is allocation, not market valuation. Pick the method, identify cost/residual/life/units, then protect residual value.",
+        memory: "Straight-line = (cost - residual) / life. Double-declining = 2 x straight-line rate x beginning book value, but do not go below residual.",
+        concepts: [
+          ["Straight-line", "Same depreciation each period unless there is a revision or partial year."],
+          ["Double-declining balance", "Accelerated method using book value. Higher expense early, lower later."],
+          ["Units-of-production", "Depreciation follows actual usage: rate per unit times units produced."],
+          ["Revision", "Changes in useful life or residual value are handled prospectively using current book value, revised residual, and remaining life."]
+        ],
+        interleave: "Before you submit this stage, answer one FIFO/weighted-average question again.",
+        drill: "Type the formulas for straight-line, DDB, and units-of-production from memory.",
+        questions: ["q26", "q27", "q28", "q29", "q30"]
+      },
+      {
+        id: "H",
+        title: "Chapter 8 Disposals, impairment, intangibles",
+        chapter: "Ch. 8",
+        pace: "Journal-entry focus",
+        visual: "journal",
+        coach: "Disposal questions are controlled by book value. Update depreciation to the date of disposal, remove cost and accumulated depreciation, record cash, then plug gain or loss.",
+        memory: "Gain/loss = proceeds - book value. Book value = cost - accumulated depreciation.",
+        concepts: [
+          ["Disposal", "Remove the asset cost and accumulated depreciation. Compare proceeds with book value."],
+          ["Gain or loss", "If proceeds exceed book value, credit gain. If proceeds are below book value, debit loss."],
+          ["Impairment", "If carrying amount is not recoverable and exceeds recoverable amount/fair value rule used in class, recognize a loss."],
+          ["Intangibles", "Finite-life intangibles are amortized; indefinite-life intangibles are tested for impairment rather than amortized."]
+        ],
+        interleave: "Interleave: lower of cost and NRV in Ch. 7 and impairment in Ch. 8 both prevent assets from being overstated.",
+        drill: "Type a disposal entry skeleton: cash, accumulated depreciation, asset, gain/loss.",
+        questions: ["q31", "q32", "q33", "q34", "q35"]
+      },
+      {
+        id: "I",
+        title: "Chapter 8 Midterm Sprint",
+        chapter: "Ch. 8",
+        pace: "Exam pressure",
+        visual: "asset",
+        coach: "This stage stacks the common midterm patterns: capitalize vs expense, depreciation method, revision, disposal, and intangible classification.",
+        memory: "Exam sequence: cost -> depreciable base -> method -> accumulated depreciation -> book value -> gain/loss or ratio.",
+        concepts: [
+          ["Long-answer format", "Show formula, plug in numbers, label the final dollar amount, and state income statement impact."],
+          ["MCQ trap", "Depreciation lowers book value through accumulated depreciation; it does not directly reduce the asset cost account until disposal."],
+          ["Connect trap", "Ordinary repairs are expenses. Betterments that extend useful life are capitalized."],
+          ["Cumulative trap", "Inventory methods affect gross profit; depreciation methods affect operating income and asset book value."]
+        ],
+        drill: "Type the fastest way to decide if a repair is capitalized or expensed.",
+        questions: ["q36", "q37", "q38", "q39", "q40"]
+      },
+      {
+        id: "J",
+        title: "Mixed Chapter 7/8 Cumulative Sprint",
+        chapter: "Ch. 7 + 8",
+        pace: "Midterm simulation",
+        visual: "journal",
+        coach: "This is the interleaved finish line. Inventory, depreciation, capitalization, and disposal questions are mixed because midterms do not warn you which rule is coming next.",
+        memory: "Final exam-move sentence: identify the asset, identify the event, apply the measurement rule, then state the income effect.",
+        concepts: [
+          ["Interleaving rule", "If a PPE question feels hard, answer a quick inventory question first, then return. Switching topics forces real retrieval."],
+          ["Typed answer standard", "For calculations: formula, substitution, final number. For journals: debits first, credits second, gain/loss last."],
+          ["Repair loop", "A wrong answer is not failure; it is the exact rule you need to recite before the next attempt."],
+          ["Midterm transfer", "Ch. 7 inventory valuation and Ch. 8 asset valuation both protect the balance sheet and affect income."]
+        ],
+        interleave: "Do this after Stage I, or use it anytime as a cumulative diagnostic.",
+        drill: "Type your personal rule for staying calm on a mixed accounting question.",
+        questions: ["q2", "q12", "q21", "q23", "q29", "q31", "q38", "q40"]
+      }
+    ];
+
+    const questionBank = {
+      q1: {
+        chapter: "Ch. 7", diff: "Warm-up", type: "mc",
+        prompt: "Which statement best describes merchandise inventory before it is sold?",
+        options: ["It is an expense because it will eventually be sold.", "It is a current asset because it is held for sale in normal operations.", "It is a long-term asset because it may sit in the warehouse.", "It is revenue because customers will pay for it."],
+        answer: 1,
+        explain: "Inventory is a current asset until the sale occurs. At sale, the cost moves from Inventory to COGS."
+      },
+      q2: {
+        chapter: "Ch. 7", diff: "Ownership trap", type: "mc",
+        prompt: "Goods are shipped FOB shipping point on June 29 and arrive July 2. The buyer's year-end is June 30. Who includes the goods in inventory at June 30?",
+        options: ["Seller, because the goods have not arrived.", "Buyer, because ownership transfers when shipped.", "Neither company until delivery.", "Both companies disclose but neither records inventory."],
+        answer: 1,
+        explain: "FOB shipping point transfers ownership when shipped, so the buyer includes the goods."
+      },
+      q3: {
+        chapter: "Ch. 7", diff: "Typed recall", type: "text",
+        prompt: "Type the account credited in the cost-side entry when inventory costing $320 is sold under a perpetual system.",
+        keywords: ["inventory"],
+        explain: "The cost-side entry is Dr Cost of Goods Sold, Cr Inventory."
+      },
+      q4: {
+        chapter: "Ch. 7", diff: "Calculation", type: "numeric",
+        prompt: "Beginning inventory is $12,000, purchases are $48,000, and ending inventory is $15,500. What is COGS?",
+        answer: 44500,
+        tolerance: 0.5,
+        explain: "COGS = beginning inventory + purchases - ending inventory = 12,000 + 48,000 - 15,500 = 44,500."
+      },
+      q5: {
+        chapter: "Ch. 7", diff: "Journal entry", type: "text",
+        prompt: "A company buys inventory on account for $9,400 under a perpetual system. Type the journal entry accounts.",
+        keywords: ["debit inventory", "credit accounts payable"],
+        alternateKeywords: [["dr inventory", "cr accounts payable"], ["inventory", "accounts payable"]],
+        explain: "Purchases under perpetual inventory debit Inventory and credit Accounts Payable or Cash."
+      },
+      q6: {
+        chapter: "Ch. 7", diff: "Journal entry", type: "text",
+        prompt: "Inventory costing $700 is sold on account for $1,100. Type BOTH perpetual system entries.",
+        keywords: ["accounts receivable", "sales revenue", "cost of goods sold", "inventory"],
+        explain: "Entry 1: Dr A/R 1,100; Cr Sales Revenue 1,100. Entry 2: Dr COGS 700; Cr Inventory 700."
+      },
+      q7: {
+        chapter: "Ch. 7", diff: "MCQ", type: "mc",
+        prompt: "A purchase discount is taken under a perpetual inventory system. What account is usually reduced?",
+        options: ["Sales Revenue", "Cost of Goods Sold", "Inventory", "Purchase Discounts"],
+        answer: 2,
+        explain: "Under a perpetual system, purchase discounts reduce Inventory."
+      },
+      q8: {
+        chapter: "Ch. 7", diff: "Ownership", type: "mc",
+        prompt: "A retailer is holding goods on consignment for a supplier. Who reports the goods as inventory?",
+        options: ["The retailer, because the goods are physically in its store.", "The supplier/consignor, because ownership has not transferred.", "Both split the inventory 50/50.", "Neither until the goods are sold."],
+        answer: 1,
+        explain: "Consigned goods remain inventory of the consignor until sold."
+      },
+      q9: {
+        chapter: "Ch. 7", diff: "FIFO", type: "numeric",
+        prompt: "FIFO: Beginning inventory 40 units @ $6. Purchase 60 units @ $8. Sell 70 units. What is COGS?",
+        answer: 480,
+        tolerance: 0.5,
+        explain: "FIFO COGS = 40 x $6 + 30 x $8 = $240 + $240 = $480."
+      },
+      q10: {
+        chapter: "Ch. 7", diff: "FIFO", type: "numeric",
+        prompt: "Using q9 data, what is ending inventory under FIFO?",
+        answer: 240,
+        tolerance: 0.5,
+        explain: "30 units remain from the latest $8 layer, so ending inventory = 30 x $8 = $240."
+      },
+      q11: {
+        chapter: "Ch. 7", diff: "Weighted avg", type: "numeric",
+        prompt: "Weighted average periodic: 100 units available costing $710 total. 65 units are sold. What is ending inventory?",
+        answer: 248.5,
+        tolerance: 0.05,
+        explain: "Average cost = $710 / 100 = $7.10. Ending units = 35. Ending inventory = 35 x $7.10 = $248.50."
+      },
+      q12: {
+        chapter: "Ch. 7", diff: "Concept", type: "mc",
+        prompt: "In a period of rising costs, which method usually produces the highest gross profit among FIFO and weighted average?",
+        options: ["FIFO", "Weighted average", "They must be identical", "Neither because cost flow has no effect on gross profit"],
+        answer: 0,
+        explain: "FIFO assigns older, lower costs to COGS during rising prices, so COGS is lower and gross profit is higher."
+      },
+      q13: {
+        chapter: "Ch. 7", diff: "Typed method", type: "text",
+        prompt: "A car dealer sells a specific vehicle with a known cost. Which inventory method best matches the actual cost of the exact unit sold?",
+        keywords: ["specific identification"],
+        explain: "Specific identification tracks the cost of the exact unit sold."
+      },
+      q14: {
+        chapter: "Ch. 7", diff: "NRV", type: "numeric",
+        prompt: "Inventory item cost is $42. Estimated selling price is $39 and selling costs are $4. Using lower of cost and NRV, what amount should be reported per unit?",
+        answer: 35,
+        tolerance: 0.05,
+        explain: "NRV = $39 - $4 = $35. Lower of cost ($42) and NRV ($35) is $35."
+      },
+      q15: {
+        chapter: "Ch. 7", diff: "Error effect", type: "mc",
+        prompt: "Ending inventory is overstated in 2026. What is the effect on 2026 COGS and net income?",
+        options: ["COGS overstated, net income understated", "COGS understated, net income overstated", "COGS understated, net income understated", "No effect on income"],
+        answer: 1,
+        explain: "COGS = BI + purchases - EI. If EI is too high, COGS is too low, so net income is too high."
+      },
+      q16: {
+        chapter: "Ch. 7", diff: "Ratio", type: "numeric",
+        prompt: "COGS is $360,000. Average inventory is $60,000. What is inventory turnover?",
+        answer: 6,
+        tolerance: 0.05,
+        explain: "Inventory turnover = COGS / average inventory = 360,000 / 60,000 = 6 times."
+      },
+      q17: {
+        chapter: "Ch. 7", diff: "Ratio", type: "numeric",
+        prompt: "If inventory turnover is 5 times, approximately how many days does it take to sell inventory? Use 365 days.",
+        answer: 73,
+        tolerance: 0.5,
+        explain: "Days to sell = 365 / 5 = 73 days."
+      },
+      q18: {
+        chapter: "Ch. 7", diff: "Cumulative", type: "numeric",
+        prompt: "Maple Mugs has 20 units @ $10, buys 30 units @ $14, then sells 35 units. Under FIFO, what is COGS?",
+        answer: 410,
+        tolerance: 0.5,
+        explain: "COGS = 20 x $10 + 15 x $14 = $200 + $210 = $410."
+      },
+      q19: {
+        chapter: "Ch. 7", diff: "Cumulative", type: "numeric",
+        prompt: "Using q18 data, sales price is $22 per unit for 35 units. What is gross profit under FIFO?",
+        answer: 360,
+        tolerance: 0.5,
+        explain: "Sales = 35 x $22 = $770. Gross profit = $770 - $410 = $360."
+      },
+      q20: {
+        chapter: "Ch. 7", diff: "Bridge", type: "mc",
+        prompt: "Which Chapter 7 idea best connects to Chapter 8 depreciation?",
+        options: ["Both allocate an asset cost to expense when the asset's benefit is consumed.", "Both always use fair value.", "Both are only balance sheet accounts and never affect income.", "Both prohibit estimates."],
+        answer: 0,
+        explain: "Inventory cost becomes COGS when sold; PPE cost becomes depreciation expense as used."
+      },
+      q21: {
+        chapter: "Ch. 7", diff: "Typed exam", type: "text",
+        prompt: "Type a compact exam answer explaining why ending inventory overstatement increases net income.",
+        keywords: ["ending inventory", "overstated", "cogs", "understated", "net income", "overstated"],
+        explain: "A strong answer names the formula and direction: overstated ending inventory subtracts too much from goods available, understating COGS and overstating net income."
+      },
+      q22: {
+        chapter: "Ch. 8", diff: "PPE cost", type: "mc",
+        prompt: "Which cost should be capitalized as part of equipment cost?",
+        options: ["Monthly maintenance after the equipment is operating", "Training snacks for staff", "Delivery and installation needed to make the equipment ready for use", "Annual insurance after the asset is placed in service"],
+        answer: 2,
+        explain: "Delivery and installation are necessary to prepare the asset for intended use, so they are capitalized."
+      },
+      q23: {
+        chapter: "Ch. 8", diff: "Capitalization", type: "numeric",
+        prompt: "A machine invoice is $72,000. Freight is $2,400, installation is $3,600, and one-year insurance after use begins is $1,200. What cost is capitalized?",
+        answer: 78000,
+        tolerance: 0.5,
+        explain: "Capitalize invoice + freight + installation = 72,000 + 2,400 + 3,600 = 78,000. Insurance after use begins is expensed over the coverage period."
+      },
+      q24: {
+        chapter: "Ch. 8", diff: "Land", type: "mc",
+        prompt: "Which asset is normally NOT depreciated?",
+        options: ["Building", "Truck", "Land", "Parking lot lighting"],
+        answer: 2,
+        explain: "Land has an indefinite life and is not depreciated. Land improvements are depreciated."
+      },
+      q25: {
+        chapter: "Ch. 8", diff: "Typed", type: "text",
+        prompt: "A roof repair extends a building's useful life by 8 years. Type whether to capitalize or expense, and why.",
+        keywords: ["capitalize", "extends", "useful life"],
+        alternateKeywords: [["capitalized", "future benefit"], ["asset", "useful life"]],
+        explain: "A betterment that extends useful life provides future benefit and is capitalized."
+      },
+      q26: {
+        chapter: "Ch. 8", diff: "Straight-line", type: "numeric",
+        prompt: "Equipment cost $95,000, residual value $5,000, useful life 6 years. What is annual straight-line depreciation?",
+        answer: 15000,
+        tolerance: 0.5,
+        explain: "(95,000 - 5,000) / 6 = 15,000."
+      },
+      q27: {
+        chapter: "Ch. 8", diff: "DDB", type: "numeric",
+        prompt: "Equipment cost $80,000, residual $8,000, useful life 5 years. Under double-declining balance, what is year 1 depreciation?",
+        answer: 32000,
+        tolerance: 0.5,
+        explain: "DDB rate = 2/5 = 40%. Year 1 depreciation = 40% x 80,000 = 32,000."
+      },
+      q28: {
+        chapter: "Ch. 8", diff: "Units", type: "numeric",
+        prompt: "Machine cost $50,000, residual $2,000, expected units 120,000. It produces 18,000 units this year. What is depreciation?",
+        answer: 7200,
+        tolerance: 0.5,
+        explain: "Rate = (50,000 - 2,000) / 120,000 = $0.40 per unit. Depreciation = 18,000 x $0.40 = 7,200."
+      },
+      q29: {
+        chapter: "Ch. 8", diff: "Revision", type: "numeric",
+        prompt: "After 2 years, equipment has cost $60,000 and accumulated depreciation $24,000. The company revises residual to $6,000 with 5 years remaining. What is new annual straight-line depreciation?",
+        answer: 6000,
+        tolerance: 0.5,
+        explain: "Book value = 60,000 - 24,000 = 36,000. New depreciation = (36,000 - 6,000) / 5 = 6,000."
+      },
+      q30: {
+        chapter: "Ch. 8", diff: "Concept", type: "mc",
+        prompt: "Depreciation is best described as:",
+        options: ["A process of reporting assets at market value", "A method of saving cash for replacement assets", "Allocation of a long-lived asset's cost over periods benefited", "A direct reduction of sales revenue"],
+        answer: 2,
+        explain: "Depreciation allocates cost over useful life; it is not valuation and does not set aside cash."
+      },
+      q31: {
+        chapter: "Ch. 8", diff: "Disposal", type: "numeric",
+        prompt: "Equipment cost $40,000 with accumulated depreciation $28,000 is sold for $15,000. What is the gain?",
+        answer: 3000,
+        tolerance: 0.5,
+        explain: "Book value = 40,000 - 28,000 = 12,000. Proceeds 15,000 - BV 12,000 = 3,000 gain."
+      },
+      q32: {
+        chapter: "Ch. 8", diff: "Disposal loss", type: "numeric",
+        prompt: "A truck cost $54,000 and has accumulated depreciation of $37,500. It is sold for $13,000. What is the loss?",
+        answer: 3500,
+        tolerance: 0.5,
+        explain: "Book value = 54,000 - 37,500 = 16,500. Proceeds 13,000 - BV 16,500 = 3,500 loss."
+      },
+      q33: {
+        chapter: "Ch. 8", diff: "Journal entry", type: "text",
+        prompt: "Type the account names in a disposal entry for equipment sold for cash at a gain.",
+        keywords: ["cash", "accumulated depreciation", "equipment", "gain"],
+        explain: "Debit Cash and Accumulated Depreciation; credit Equipment and Gain on Disposal."
+      },
+      q34: {
+        chapter: "Ch. 8", diff: "Intangible", type: "mc",
+        prompt: "Which treatment is most appropriate for a finite-life patent?",
+        options: ["Never amortize it", "Amortize it over its useful/legal life and test for impairment when needed", "Record depreciation expense", "Immediately expense the entire cost even if purchased"],
+        answer: 1,
+        explain: "Finite-life intangibles are amortized over the period benefited."
+      },
+      q35: {
+        chapter: "Ch. 8", diff: "Impairment", type: "mc",
+        prompt: "What is the accounting purpose of an impairment write-down?",
+        options: ["To increase assets to market value", "To avoid overstating an asset whose carrying amount is too high", "To move depreciation into revenue", "To reverse all past depreciation"],
+        answer: 1,
+        explain: "Impairment prevents assets from being reported above recoverable/fair value thresholds used by the course."
+      },
+      q36: {
+        chapter: "Ch. 8", diff: "Capital vs expense", type: "mc",
+        prompt: "A company pays $1,900 for ordinary engine maintenance on delivery trucks. The work keeps trucks in normal condition. What is the treatment?",
+        options: ["Capitalize as Truck", "Expense as repairs/maintenance", "Record as accumulated depreciation", "Credit sales revenue"],
+        answer: 1,
+        explain: "Ordinary maintenance that maintains normal condition is expensed."
+      },
+      q37: {
+        chapter: "Ch. 8", diff: "Partial year", type: "numeric",
+        prompt: "Equipment cost $36,000, residual $6,000, life 5 years. Bought on Oct. 1. If straight-line and calendar year-end, what is depreciation for the first year? Use 3/12.",
+        answer: 1500,
+        tolerance: 0.5,
+        explain: "Annual SL = (36,000 - 6,000)/5 = 6,000. First year = 6,000 x 3/12 = 1,500."
+      },
+      q38: {
+        chapter: "Ch. 8", diff: "DDB cap", type: "numeric",
+        prompt: "An asset has beginning book value $12,000, residual $4,000, and DDB depreciation before residual check would be $9,600. What depreciation is recorded?",
+        answer: 8000,
+        tolerance: 0.5,
+        explain: "Do not depreciate below residual. Max depreciation = 12,000 - 4,000 = 8,000."
+      },
+      q39: {
+        chapter: "Ch. 8", diff: "Amortization", type: "numeric",
+        prompt: "A purchased customer list costs $24,000 and has a 4-year useful life with no residual value. What is annual amortization?",
+        answer: 6000,
+        tolerance: 0.5,
+        explain: "Finite-life intangible amortization = 24,000 / 4 = 6,000 per year."
+      },
+      q40: {
+        chapter: "Ch. 8", diff: "Typed long answer", type: "text",
+        prompt: "Type a compact long-answer explanation for calculating gain/loss on disposal.",
+        keywords: ["book value", "cost", "accumulated depreciation", "proceeds", "gain", "loss"],
+        explain: "Strong answer: compute book value as cost minus accumulated depreciation, compare proceeds to book value, record gain if proceeds are higher and loss if lower."
+      }
+    };
+
+    const state = loadState();
+    let activeStage = stages[0].id;
+    let timerSeconds = 15 * 60;
+    let timerId = null;
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return parsed || { completedStages: {}, correctQuestions: {}, attempts: {}, xp: 0, notes: {} };
+      } catch (error) {
+        return { completedStages: {}, correctQuestions: {}, attempts: {}, xp: 0, notes: {} };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateDashboard();
+    }
+
+    function money(value) {
+      return Number(value).toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 });
+    }
+
+    function normalize(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[$,]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("stageNav");
+      nav.innerHTML = stages.map(stage => `
+        <button class="stage-link ${stage.id === activeStage ? "active" : ""} ${state.completedStages[stage.id] ? "done" : ""}" data-stage="${stage.id}">
+          <span class="badge">${stage.id}</span>
+          <span><strong>${stage.title}</strong><small>${stage.chapter} | ${stage.pace}</small></span>
+          <span class="status-dot" aria-hidden="true"></span>
+        </button>
+      `).join("");
+      nav.querySelectorAll(".stage-link").forEach(button => {
+        button.addEventListener("click", () => {
+          activeStage = button.dataset.stage;
+          document.getElementById(`stage-${activeStage}`).scrollIntoView({ behavior: "smooth", block: "start" });
+          renderNav();
+        });
+      });
+    }
+
+    function renderStages() {
+      const holder = document.getElementById("stages");
+      holder.innerHTML = stages.map(stage => `
+        <section class="stage" id="stage-${stage.id}" data-stage="${stage.id}">
+          <div class="stage-header">
+            <div>
+              <div class="eyebrow">${stage.chapter} | Stage ${stage.id} | ${stage.pace}</div>
+              <h3>${stage.title}</h3>
+              <div class="stage-meta">${stage.interleave ? stage.interleave : "Recommended order, but every stage stays clickable so you can return later."}</div>
+            </div>
+            <button class="btn secondary stage-jump" data-stage="${stage.id}">Make active</button>
+          </div>
+          <div class="stage-body">
+            <div class="two-col">
+              <div>
+                <div class="coach"><strong>SQ4R coach:</strong> ${stage.coach}</div>
+                <div class="concept-grid" style="margin-top: 14px;">
+                  ${stage.concepts.map(item => `<div class="concept"><strong>${item[0]}</strong><p>${item[1]}</p></div>`).join("")}
+                </div>
+                <div class="memory" style="margin-top: 14px;"><strong>Active recall anchor:</strong> ${stage.memory}</div>
+                <div class="typing-drill">
+                  <label for="note-${stage.id}">Write/recite box: ${stage.drill}</label>
+                  <textarea id="note-${stage.id}" data-note="${stage.id}" placeholder="Type your answer from memory. This autosaves locally.">${state.notes[stage.id] || ""}</textarea>
+                </div>
+              </div>
+              <div class="visual-panel">${renderVisual(stage.visual, stage.id)}</div>
+            </div>
+            <div class="quiz-zone" id="quiz-${stage.id}">
+              ${stage.questions.map(qid => renderQuestion(qid, stage.id)).join("")}
+            </div>
+            <div class="complete-banner ${state.completedStages[stage.id] ? "show" : ""}" id="complete-${stage.id}">
+              Stage ${stage.id} complete. You repaired every checkpoint question. Move forward, but come back later for spaced repetition.
+            </div>
+            <button class="btn mark-stage" data-stage="${stage.id}">Check completion for Stage ${stage.id}</button>
+          </div>
+        </section>
+      `).join("");
+
+      holder.querySelectorAll(".stage-jump").forEach(button => {
+        button.addEventListener("click", () => {
+          activeStage = button.dataset.stage;
+          renderNav();
+        });
+      });
+
+      holder.querySelectorAll("[data-note]").forEach(area => {
+        area.addEventListener("input", () => {
+          state.notes[area.dataset.note] = area.value;
+          saveState();
+        });
+      });
+
+      holder.querySelectorAll(".mark-stage").forEach(button => {
+        button.addEventListener("click", () => markStage(button.dataset.stage));
+      });
+
+      attachQuestionHandlers(holder);
+    }
+
+    function renderVisual(type, stageId) {
+      if (type === "journal") {
+        return `
+          <div class="visual-title"><span>Animated journal model</span><span>Dr = left | Cr = right</span></div>
+          <div class="debit-credit">
+            <div class="dc-column">
+              <h4>Debit</h4>
+              <div class="dc-line"><span>${stageId < "F" ? "Cost of Goods Sold" : "Cash"}</span><strong>${stageId < "F" ? "$700" : "$15,000"}</strong></div>
+              <div class="dc-line" style="animation-delay: .15s;"><span>${stageId < "F" ? "Accounts Receivable" : "Accumulated Depreciation"}</span><strong>${stageId < "F" ? "$1,100" : "$28,000"}</strong></div>
+            </div>
+            <div class="dc-column">
+              <h4>Credit</h4>
+              <div class="dc-line" style="animation-delay: .25s;"><span>${stageId < "F" ? "Sales Revenue" : "Equipment"}</span><strong>${stageId < "F" ? "$1,100" : "$40,000"}</strong></div>
+              <div class="dc-line" style="animation-delay: .35s;"><span>${stageId < "F" ? "Inventory" : "Gain on Disposal"}</span><strong>${stageId < "F" ? "$700" : "$3,000"}</strong></div>
+            </div>
+          </div>
+          <p class="mini-note">Animation meaning: a sale/disposal often needs more than one account because the accounting system tracks both performance and asset cost.</p>
+        `;
+      }
+
+      if (type === "asset") {
+        return `
+          <div class="visual-title"><span>Asset cost allocation</span><span>Cost -> expense over use</span></div>
+          <div class="asset-meter">
+            <div class="asset-tank"><div class="asset-fill"></div></div>
+            <div class="formula-stack">
+              <div class="formula">Book value = Cost - Accumulated depreciation</div>
+              <div class="formula">SL = (Cost - Residual) / Life</div>
+              <div class="formula">DDB = (2 / Life) x Beg. BV</div>
+              <div class="formula">Gain/Loss = Proceeds - Book value</div>
+            </div>
+          </div>
+          <p class="mini-note">The bar drains because cost is being allocated to expense. The original cost account stays until disposal.</p>
+        `;
+      }
+
+      return `
+        <div class="visual-title"><span>Inventory cost layers</span><span>FIFO sells older layers first</span></div>
+        <div class="inventory-layers">
+          <div class="layer sold" style="height: 70%; background: #fde68a;"><span>40 units<small>@ $6</small></span></div>
+          <div class="layer sold" style="height: 86%; background: #86efac; animation-delay: .12s;"><span>30 units<small>@ $8</small></span></div>
+          <div class="layer" style="height: 86%; background: #7dd3fc; animation-delay: .24s;"><span>30 units<small>@ $8 left</small></span></div>
+        </div>
+        <div class="formula-stack" style="margin-top: 12px;">
+          <div class="formula">COGS = BI + Purchases - EI</div>
+          <div class="formula">Gross profit = Sales - COGS</div>
+          <div class="formula">Turnover = COGS / Avg inventory</div>
+        </div>
+      `;
+    }
+
+    function renderQuestion(qid, stageId) {
+      const q = questionBank[qid];
+      const instanceId = `${stageId}-${qid}`;
+      const isCorrect = Boolean(state.correctQuestions[instanceId]);
+      const answeredClass = isCorrect ? " good show" : "";
+      const feedbackText = isCorrect ? "Already correct. You can still retry for spaced repetition." : "";
+      return `
+        <article class="question-card" data-qid="${qid}" data-stage="${stageId}" data-instance="${instanceId}">
+          <div class="question-top">
+            <div>
+              <p class="prompt">${q.prompt}</p>
+              <div class="tag-row">
+                <span class="tag">${q.chapter}</span>
+                <span class="tag difficulty">${q.diff}</span>
+                <span class="tag">${q.type === "mc" ? "multiple choice" : q.type === "numeric" ? "number" : "typed answer"}</span>
+              </div>
+            </div>
+            <span class="tag">${isCorrect ? "correct" : "repair required"}</span>
+          </div>
+          ${renderAnswerInput(qid, q, instanceId)}
+          <div class="feedback${answeredClass}" id="feedback-${instanceId}">${feedbackText}</div>
+          <div class="must-redo" id="redo-${instanceId}">Repair loop: explain the rule out loud, then answer again. You cannot mark this stage complete until this question is correct.</div>
+        </article>
+      `;
+    }
+
+    function renderAnswerInput(qid, q, instanceId) {
+      if (q.type === "mc") {
+        return `<div class="options">${q.options.map((option, index) => `<button class="option" data-qid="${qid}" data-instance="${instanceId}" data-choice="${index}">${String.fromCharCode(65 + index)}. ${option}</button>`).join("")}</div>`;
+      }
+      if (q.type === "numeric") {
+        return `
+          <div class="answer-row">
+            <input class="answer-input" type="text" inputmode="decimal" id="input-${instanceId}" placeholder="Type the number only. Example: 44500">
+            <button class="btn check-answer" data-qid="${qid}" data-instance="${instanceId}">Check</button>
+          </div>
+        `;
+      }
+      return `
+        <div class="answer-row">
+          <textarea class="answer-input" id="input-${instanceId}" placeholder="Type a digital-exam style answer. Include account names, formulas, or explanation words."></textarea>
+          <button class="btn check-answer" data-qid="${qid}" data-instance="${instanceId}">Check</button>
+        </div>
+      `;
+    }
+
+    function attachQuestionHandlers(root = document) {
+      root.querySelectorAll(".option").forEach(button => {
+        button.addEventListener("click", () => {
+          const qid = button.dataset.qid;
+          const q = questionBank[qid];
+          const selected = Number(button.dataset.choice);
+          const card = button.closest(".question-card");
+          card.querySelectorAll(".option").forEach(opt => opt.classList.remove("correct", "wrong"));
+          button.classList.add(selected === q.answer ? "correct" : "wrong");
+          if (selected !== q.answer) {
+            const correctButton = card.querySelector(`[data-choice="${q.answer}"]`);
+            if (correctButton) correctButton.classList.add("correct");
+          }
+          handleResult(qid, selected === q.answer, card);
+        });
+      });
+
+      root.querySelectorAll(".check-answer").forEach(button => {
+        button.addEventListener("click", () => {
+          const qid = button.dataset.qid;
+          const q = questionBank[qid];
+          const card = button.closest(".question-card");
+          const input = card.querySelector(".answer-input");
+          handleResult(qid, evaluateTyped(q, input.value), card);
+        });
+      });
+    }
+
+    function evaluateTyped(q, rawValue) {
+      const value = normalize(rawValue);
+      if (q.type === "numeric") {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) && Math.abs(parsed - q.answer) <= (q.tolerance || 0);
+      }
+      const primary = (q.keywords || []).every(word => value.includes(normalize(word)));
+      const alternate = (q.alternateKeywords || []).some(group => group.every(word => value.includes(normalize(word))));
+      return primary || alternate;
+    }
+
+    function handleResult(qid, correct, card) {
+      state.attempts[qid] = (state.attempts[qid] || 0) + 1;
+      const q = questionBank[qid];
+      const instanceId = card.dataset.instance;
+      const feedback = card.querySelector(".feedback");
+      const redo = card.querySelector(".must-redo");
+      if (correct) {
+        const firstCorrect = !state.correctQuestions[instanceId];
+        state.correctQuestions[instanceId] = true;
+        if (firstCorrect) state.xp += q.diff.includes("Warm") ? 5 : 10;
+        feedback.className = "feedback good show";
+        feedback.innerHTML = `<strong>Correct.</strong> ${q.explain}`;
+        redo.classList.remove("show");
+      } else {
+        feedback.className = "feedback bad show";
+        feedback.innerHTML = `<strong>Not yet.</strong> ${q.explain}<br><br><strong>Repair prompt:</strong> Type or say the rule before trying again.`;
+        redo.classList.add("show");
+      }
+      saveState();
+      renderNav();
+    }
+
+    function markStage(stageId) {
+      const stage = stages.find(item => item.id === stageId);
+      const missing = stage.questions.filter(qid => !state.correctQuestions[`${stageId}-${qid}`]);
+      const banner = document.getElementById(`complete-${stageId}`);
+      if (missing.length === 0) {
+        state.completedStages[stageId] = true;
+        banner.classList.add("show");
+        banner.textContent = `Stage ${stageId} complete. Good. Now interleave: do one older question before moving forward.`;
+      } else {
+        banner.classList.add("show");
+        banner.style.background = "rgba(252, 165, 165, 0.12)";
+        banner.style.borderColor = "rgba(252, 165, 165, 0.45)";
+        banner.textContent = `Not complete yet. Repair these checkpoint questions: ${missing.join(", ")}.`;
+        document.querySelector(`[data-stage="${stageId}"][data-qid="${missing[0]}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      saveState();
+      renderNav();
+    }
+
+    function updateDashboard() {
+      const completeCount = stages.filter(stage => state.completedStages[stage.id]).length;
+      document.getElementById("stageCount").textContent = `${completeCount}/${stages.length}`;
+      document.getElementById("xpCount").textContent = state.xp || 0;
+      document.getElementById("overallProgress").style.width = `${Math.round((completeCount / stages.length) * 100)}%`;
+    }
+
+    function generateExam() {
+      const allIds = Object.keys(questionBank);
+      const shuffled = allIds
+        .map(id => ({ id, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .slice(0, 10)
+        .map(item => item.id);
+      const exam = document.getElementById("examQuestions");
+      exam.innerHTML = shuffled.map(qid => renderQuestion(qid, "bonus")).join("");
+      document.getElementById("examScore").textContent = "Sprint generated";
+      attachQuestionHandlers(exam);
+    }
+
+    function clearExam() {
+      document.getElementById("examQuestions").innerHTML = "";
+      document.getElementById("examScore").textContent = "No sprint yet";
+    }
+
+    function updateTimerDisplay() {
+      const minutes = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+      const seconds = String(timerSeconds % 60).padStart(2, "0");
+      document.getElementById("timerDisplay").textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        document.getElementById("timerToggle").textContent = "Start";
+        return;
+      }
+      document.getElementById("timerToggle").textContent = "Pause";
+      timerId = setInterval(() => {
+        timerSeconds -= 1;
+        if (timerSeconds <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          timerSeconds = 0;
+          document.getElementById("timerToggle").textContent = "Start";
+          alert("Body-double sprint complete. Stand up, then do one repair question or one spaced review.");
+        }
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timerId);
+      timerId = null;
+      timerSeconds = 15 * 60;
+      document.getElementById("timerToggle").textContent = "Start";
+      updateTimerDisplay();
+    }
+
+    function resetProgress() {
+      if (!confirm("Reset all saved progress and typed notes for this trainer?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    document.getElementById("generateExam").addEventListener("click", generateExam);
+    document.getElementById("clearExam").addEventListener("click", clearExam);
+    document.getElementById("jumpExam").addEventListener("click", () => document.getElementById("mixed-exam").scrollIntoView({ behavior: "smooth" }));
+    document.getElementById("printPack").addEventListener("click", () => window.print());
+    document.getElementById("resetProgress").addEventListener("click", resetProgress);
+    document.getElementById("timerToggle").addEventListener("click", startTimer);
+    document.getElementById("timerReset").addEventListener("click", resetTimer);
+    document.getElementById("startFocus").addEventListener("click", () => {
+      document.querySelector(".focus-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!timerId && timerSeconds === 15 * 60) startTimer();
+    });
+
+    renderNav();
+    renderStages();
+    updateDashboard();
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
