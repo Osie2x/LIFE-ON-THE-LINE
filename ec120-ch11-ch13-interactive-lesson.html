@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EC120 · Ch 11 & Ch 13 — Interactive Mastery Lesson</title>
+<style>
+  :root{
+    --bg:#0f1226; --bg2:#151a35; --card:#1b2145; --card2:#222a55;
+    --ink:#eef1ff; --muted:#a6b0d8; --line:#2c356b;
+    --brand:#7c8cff; --brand2:#4cc6ff; --good:#3ddc97; --bad:#ff6b8a;
+    --warn:#ffd166; --read:#4cc6ff; --write:#ffb454; --gold:#ffd166;
+    --shadow:0 18px 50px rgba(0,0,0,.45);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 12% -10%,#23306e 0%,transparent 55%),
+               radial-gradient(1000px 600px at 100% 0%,#2a1c54 0%,transparent 50%),
+               var(--bg);
+    color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brand2)}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 18px 120px}
+
+  /* ---------- header ---------- */
+  header.hero{
+    background:linear-gradient(135deg,#2a3a8f 0%,#5b3aa0 60%,#7c3aa0 100%);
+    border-radius:26px; padding:30px 28px; box-shadow:var(--shadow);
+    position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.08);
+  }
+  header.hero::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(600px 220px at 90% -20%,rgba(255,255,255,.18),transparent);pointer-events:none}
+  .badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);
+    padding:5px 12px;border-radius:999px;font-size:12.5px;letter-spacing:.4px;margin-bottom:10px}
+  h1{margin:.1em 0 .15em;font-size:30px;line-height:1.15}
+  .sub{color:#e7ebff;opacity:.92;font-size:15px;max-width:760px}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .hero-stats .pill{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.16);
+    padding:7px 12px;border-radius:12px;font-size:13px}
+
+  /* ---------- progress bar ---------- */
+  .progress-shell{position:sticky;top:0;z-index:50;background:rgba(15,18,38,.86);
+    backdrop-filter:blur(8px);padding:10px 14px;border-radius:0 0 16px 16px;margin:0 -4px 18px;
+    border:1px solid var(--line);border-top:none}
+  .pbar{height:12px;background:#0c0f24;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .pbar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2),var(--good));
+    transition:width .5s ease}
+  .ptxt{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:6px}
+  .ptxt b{color:var(--ink)}
+
+  /* ---------- generic cards ---------- */
+  section.block{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);
+    padding:22px;margin:22px 0;box-shadow:var(--shadow)}
+  h2.section-title{font-size:22px;margin:.1em 0 .5em;display:flex;align-items:center;gap:10px}
+  h2.section-title .n{background:var(--brand);color:#0b1030;width:30px;height:30px;border-radius:9px;
+    display:grid;place-items:center;font-size:15px;font-weight:800;flex:none}
+  .lead{color:var(--muted);margin:.2em 0 1em}
+
+  .method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .method{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .method h4{margin:.1em 0 .35em;font-size:15px}
+  .method p{margin:0;color:var(--muted);font-size:13px}
+  .method .tag{font-size:11px;color:#0b1030;background:var(--brand2);border-radius:6px;padding:2px 8px;font-weight:700}
+
+  /* ---------- topic cards ---------- */
+  .topic{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);margin:20px 0;
+    box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:90px}
+  .topic.locked{opacity:.55}
+  .topic-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;
+    background:linear-gradient(180deg,var(--card),var(--bg2))}
+  .topic-head .ic{font-size:24px;width:46px;height:46px;border-radius:13px;flex:none;display:grid;place-items:center;
+    background:var(--card2);border:1px solid var(--line)}
+  .topic-head .meta{flex:1;min-width:0}
+  .topic-head .chip{font-size:11.5px;color:var(--brand2);letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+  .topic-head h3{margin:1px 0 0;font-size:18px}
+  .topic-head .state{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .topic-head .state.done{color:var(--good);font-weight:700}
+  .topic-head .lockico{font-size:20px}
+  .topic-body{padding:0 20px 20px;display:none}
+  .topic.open .topic-body{display:block}
+  .topic.open .topic-head{border-bottom:1px solid var(--line)}
+
+  /* phase blocks */
+  .phase{border-radius:14px;padding:16px;margin:16px 0;border:1px solid var(--line)}
+  .phase.read{background:rgba(76,198,255,.07);border-color:rgba(76,198,255,.4)}
+  .phase.write{background:rgba(255,180,84,.07);border-color:rgba(255,180,84,.4)}
+  .phase.gate{background:rgba(124,140,255,.08);border-color:rgba(124,140,255,.45)}
+  .phase.drill{background:rgba(61,220,151,.06);border-color:rgba(61,220,151,.35)}
+  .phase.distract{background:rgba(255,107,138,.07);border-color:rgba(255,107,138,.4)}
+  .phase.why{background:rgba(255,209,102,.07);border-color:rgba(255,209,102,.4)}
+  .phase-label{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13.5px;
+    letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px}
+  .phase.read .phase-label{color:var(--read)}
+  .phase.write .phase-label{color:var(--write)}
+  .phase.gate .phase-label{color:var(--brand)}
+  .phase.drill .phase-label{color:var(--good)}
+  .phase.distract .phase-label{color:var(--bad)}
+  .phase.why .phase-label{color:var(--gold)}
+  .phase .est{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+  .phase ul{margin:.4em 0 .2em;padding-left:20px}
+  .phase ul li{margin:.32em 0}
+  .phase ul li b{color:#fff}
+
+  .locked-msg{background:rgba(0,0,0,.25);border:1px dashed var(--line);border-radius:12px;padding:14px;
+    color:var(--muted);font-size:14px;text-align:center}
+
+  /* true/false gate */
+  .tf{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+  .tf .q{font-weight:600;margin-bottom:10px}
+  .tf .btns{display:flex;gap:10px}
+  button{font-family:inherit}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--ink);
+    padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;transition:.15s}
+  .btn:hover{transform:translateY(-1px);border-color:var(--brand)}
+  .btn.sel-true{background:var(--good);color:#06231a;border-color:var(--good)}
+  .btn.sel-false{background:var(--bad);color:#350713;border-color:var(--bad)}
+  .tf .fb{margin-top:10px;font-size:13.5px;display:none;padding:10px;border-radius:10px}
+  .tf .fb.show{display:block}
+  .tf .fb.ok{background:rgba(61,220,151,.12);border:1px solid var(--good)}
+  .tf .fb.no{background:rgba(255,107,138,.12);border:1px solid var(--bad)}
+
+  /* formula box */
+  .formula{background:#0c1030;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;
+    font-size:17px;text-align:center;font-family:"Cambria Math",Georgia,serif}
+  .formula b{color:var(--write)}
+  .worked{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;font-size:14px}
+  .worked .row{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:4px 0}
+  .worked .row:last-child{border-bottom:none}
+  .worked .row b{color:var(--good)}
+  .notebook{background:rgba(255,180,84,.09);border-left:4px solid var(--write);border-radius:8px;
+    padding:10px 14px;margin:10px 0;font-size:13.5px}
+  .notebook b{color:var(--write)}
+
+  /* distractor */
+  .trap{background:var(--card);border:1px solid rgba(255,107,138,.4);border-radius:12px;padding:12px 14px;margin:9px 0}
+  .trap .t{color:var(--bad);font-weight:700;font-size:14px}
+  .trap .w{color:var(--muted);font-size:13.5px;margin-top:4px}
+  .trap .w b{color:var(--ink)}
+
+  /* mcq */
+  .mcq{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:11px 0}
+  .mcq .q{font-weight:600;margin-bottom:10px}
+  .opt{display:block;width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);
+    background:var(--card2);color:var(--ink);padding:10px 13px;border-radius:10px;margin:7px 0;font-size:14px;transition:.12s}
+  .opt:hover{border-color:var(--brand)}
+  .opt .k{display:inline-block;width:22px;height:22px;border-radius:6px;background:#0c1030;text-align:center;
+    margin-right:9px;font-weight:800;font-size:12.5px;line-height:22px}
+  .opt.correct{background:rgba(61,220,151,.18);border-color:var(--good)}
+  .opt.wrong{background:rgba(255,107,138,.16);border-color:var(--bad)}
+  .opt.disabled{pointer-events:none;opacity:.85}
+  .mcq .exp{display:none;margin-top:9px;font-size:13.5px;background:rgba(0,0,0,.22);border-radius:9px;padding:10px}
+  .mcq .exp.show{display:block}
+  .drill-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .drill-status .score{font-weight:700}
+  .retry-note{background:rgba(255,209,102,.1);border:1px solid var(--warn);border-radius:10px;padding:10px;
+    font-size:13.5px;margin-top:8px;display:none}
+  .retry-note.show{display:block}
+
+  /* why */
+  textarea.why-box{width:100%;min-height:80px;background:#0c1030;color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:11px;font-family:inherit;font-size:14px;resize:vertical}
+  .reveal{display:none;margin-top:10px;background:rgba(255,209,102,.1);border:1px solid var(--warn);
+    border-radius:10px;padding:12px;font-size:14px}
+  .reveal.show{display:block}
+
+  /* active recall */
+  .recall{background:rgba(124,140,255,.07);border:1px dashed var(--brand);border-radius:12px;padding:14px;margin:14px 0}
+  .recall b{color:var(--brand)}
+
+  /* graphs */
+  .figure{background:#0c1030;border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;text-align:center}
+  .figure svg{max-width:100%;height:auto}
+  .figure .cap{color:var(--muted);font-size:12.5px;margin-top:6px}
+
+  /* goods matrix */
+  .matrix{display:grid;grid-template-columns:120px 1fr 1fr;gap:8px;margin:12px 0}
+  .matrix .cell{border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px}
+  .matrix .head{background:var(--card2);font-weight:700;text-align:center;display:grid;place-items:center}
+  .matrix .corner{background:transparent;border:none}
+  .matrix .g-priv{background:rgba(124,140,255,.12)}
+  .matrix .g-club{background:rgba(76,198,255,.12)}
+  .matrix .g-comm{background:rgba(255,180,84,.12)}
+  .matrix .g-pub{background:rgba(61,220,151,.12)}
+  .matrix .cell b{display:block;font-size:14.5px;margin-bottom:3px}
+  .matrix .cell .ex{color:var(--muted);font-size:12px}
+
+  /* toolbar widgets */
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.tools{grid-template-columns:1fr}}
+  .tool{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .tool h4{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .timer{font-size:40px;font-weight:800;text-align:center;letter-spacing:2px;font-variant-numeric:tabular-nums;margin:6px 0}
+  .timer-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .mode-toggle{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--muted)}
+  .switch{position:relative;width:48px;height:26px;flex:none}
+  .switch input{display:none}
+  .slider{position:absolute;inset:0;background:#0c1030;border:1px solid var(--line);border-radius:999px;cursor:pointer;transition:.2s}
+  .slider::before{content:"";position:absolute;width:18px;height:18px;left:4px;top:3px;background:var(--muted);border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--brand)}
+  .switch input:checked + .slider::before{transform:translateX(21px);background:#fff}
+
+  body.bodydouble{outline:none}
+  body.bodydouble .wrap::before{content:"👥 Body-Double Mode ON — you're not studying alone. Narrate every answer out loud.";
+    display:block;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#06122e;font-weight:700;
+    text-align:center;padding:8px;border-radius:12px;margin-bottom:14px;font-size:13.5px}
+
+  /* flashcards */
+  .flashdeck{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .flip{perspective:1000px;height:140px;cursor:pointer}
+  .flip .inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flip.flipped .inner{transform:rotateY(180deg)}
+  .flip .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;padding:14px;
+    display:grid;place-items:center;text-align:center;border:1px solid var(--line)}
+  .flip .front{background:var(--card2)}
+  .flip .back{background:linear-gradient(135deg,#234,#2a3a8f);transform:rotateY(180deg);font-size:13.5px}
+  .flip .front b{font-size:15px}
+
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}
+  .checklist li:last-child{border-bottom:none}
+  .checklist input{margin-top:4px;width:18px;height:18px;accent-color:var(--brand);flex:none}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);
+    background:var(--good);color:#06231a;font-weight:800;padding:14px 22px;border-radius:14px;
+    box-shadow:var(--shadow);transition:.4s;z-index:200;font-size:15px;max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  .reset{background:transparent;border:1px solid var(--line);color:var(--muted);padding:7px 12px;border-radius:9px;
+    cursor:pointer;font-size:12.5px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+
+  details.acc{border:1px solid var(--line);border-radius:12px;padding:0;margin:10px 0;background:var(--card)}
+  details.acc summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none}
+  details.acc summary::-webkit-details-marker{display:none}
+  details.acc summary::before{content:"▸ ";color:var(--brand)}
+  details.acc[open] summary::before{content:"▾ "}
+  details.acc .inner{padding:0 14px 14px}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);justify-content:center;margin-top:6px}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .footnote{color:var(--muted);font-size:12.5px;text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge">EC120-VA4 · Microeconomics · Mankiw 9th ed.</span>
+    <h1>Chapter 11 &amp; Chapter 13 — Interactive Mastery Lesson</h1>
+    <p class="sub"><b>Ch 11:</b> Public Goods &amp; Common Resources &nbsp;·&nbsp; <b>Ch 13:</b> The Costs of Production.
+    Built around <i>your</i> study system: SQ4R first-exposure → Active Recall + Practice Problems with a Body-Double timer → Spaced Repetition. No quiz this week, so the goal here is a <b>strong baseline understanding</b>, not cramming.</p>
+    <div class="hero-stats">
+      <span class="pill">🎯 10 gated topics</span>
+      <span class="pill">👁 Read → ✏️ Write → 🧠 Recall → 🎯 Drill</span>
+      <span class="pill">🔓 3/4 to unlock next topic</span>
+      <span class="pill">💾 Progress auto-saves</span>
+    </div>
+  </header>
+
+  <div class="progress-shell">
+    <div class="pbar"><i id="pbar-fill"></i></div>
+    <div class="ptxt"><span>Course progress</span><span><b id="pbar-num">0</b> / 10 topics mastered</span></div>
+  </div>
+
+  <!-- HOW TO USE / METHOD -->
+  <section class="block" id="how">
+    <h2 class="section-title"><span class="n">★</span>How to use this (your study system)</h2>
+    <p class="lead">Each topic runs the exact 4-phase loop you like. Do them in order — phases stay locked until you pass the gate before them. Aim for ~14 min per topic.</p>
+    <div class="method-grid">
+      <div class="method"><span class="tag">SOLO · QUIET</span><h4>👁 SQ4R</h4><p>Survey headings → make questions → Read the anchor → wRite it in your own words → Recite → Review. This is your <b>first exposure</b> phase.</p></div>
+      <div class="method"><span class="tag">EXAM-LIKE</span><h4>🧠 Active Recall</h4><p>Close the screen, re-draw the graph from memory, explain it out loud as if teaching. The #1 evidence-backed technique.</p></div>
+      <div class="method"><span class="tag">SPRINTS</span><h4>🎯 Practice Problems</h4><p>MCQ drills graded instantly. Econ is applied — questions beat re-reading. Need 3/4 to move on.</p></div>
+      <div class="method"><span class="tag">FOCUS</span><h4>👥 Body Doubling</h4><p>Flip on Body-Double Mode + the 25-min timer for the recall &amp; drill phase — the part ADHD brains zone out on.</p></div>
+      <div class="method"><span class="tag">EVERY FEW DAYS</span><h4>🔁 Spaced Repetition</h4><p>The flashcard deck + 10-min review at the bottom. Revisit elasticity &amp; older topics so they don't fade.</p></div>
+    </div>
+    <div class="tools" style="margin-top:16px">
+      <div class="tool">
+        <h4>⏱️ Body-Double Focus Timer</h4>
+        <div class="timer" id="timer">25:00</div>
+        <div class="timer-btns">
+          <button class="btn" id="t-start">Start sprint</button>
+          <button class="btn" id="t-pause">Pause</button>
+          <button class="btn" id="t-reset">Reset</button>
+          <button class="btn" id="t-break">5-min break</button>
+        </div>
+        <div class="mode-toggle">
+          <label class="switch"><input type="checkbox" id="bd-toggle"><span class="slider"></span></label>
+          <span>Body-Double Mode — pretend a classmate is on the call. <b>Narrate every answer aloud.</b></span>
+        </div>
+      </div>
+      <div class="tool">
+        <h4>🗺️ SQ4R — Survey both chapters first (2 min)</h4>
+        <p style="color:var(--muted);font-size:13px;margin:.2em 0 .6em">Skim the headings below and turn each into a question <i>before</i> you read. Check them off once you can answer it later.</p>
+        <ul class="checklist" id="survey-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPICS RENDER HERE -->
+  <div id="topics"></div>
+
+  <!-- SPACED REPETITION -->
+  <section class="block" id="spaced">
+    <h2 class="section-title"><span class="n">🔁</span>Spaced Repetition Deck</h2>
+    <p class="lead">Come back to this every few days for a 10-minute review. Tap a card to flip it. It mixes today's Ch 11/13 ideas with older topics (like <b>elasticity</b>) so nothing slips through the ADHD "cram-and-forget" cycle.</p>
+    <div class="flashdeck" id="flashdeck"></div>
+    <details class="acc" style="margin-top:16px">
+      <summary>📅 Suggested spaced-review schedule</summary>
+      <div class="inner">
+        <ul>
+          <li><b>Today:</b> Finish all 10 topics (first exposure + drills).</li>
+          <li><b>+1 day:</b> Flip every flashcard once. Re-draw the U-shaped ATC/MC graph from memory.</li>
+          <li><b>+3 days:</b> Redo the MCQ drills for Topics 7–9 (the cost-curve math) + a 10-min elasticity refresher.</li>
+          <li><b>+7 days:</b> Re-survey both chapters; teach the Tragedy of the Commons and the MC=ATC rule out loud to someone.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- FINAL ACTIVE RECALL -->
+  <section class="block" id="final-recall">
+    <h2 class="section-title"><span class="n">🧠</span>Final Active-Recall Self-Test</h2>
+    <p class="lead">Close everything else. Out loud (or in your notebook), answer these from memory. Then expand each to check.</p>
+    <div id="final-recall-list"></div>
+  </section>
+
+  <div style="text-align:center;margin-top:26px">
+    <button class="reset" id="reset-all">↺ Reset all progress on this device</button>
+  </div>
+  <p class="footnote">Self-study aid for EC120-VA4 · aligned to Mankiw, <i>Principles of Microeconomics</i> 9th ed., Ch 11 &amp; Ch 13. Numbers use the textbook's classic firm examples (Thirsty Thelma's, Caroline's Cookies). Not official course material.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SVG GRAPH HELPERS  (self-contained, no external libraries)
+   ============================================================ */
+function gProductionFunction(){
+  // Q rises but flattens (diminishing MP). Points from Caroline data scaled.
+  return `<svg viewBox="0 0 360 230" role="img" aria-label="Production function flattening">
+    <line x1="45" y1="10" x2="45" y2="195" stroke="#5566aa" stroke-width="1.5"/>
+    <line x1="45" y1="195" x2="345" y2="195" stroke="#5566aa" stroke-width="1.5"/>
+    <text x="8" y="100" fill="#a6b0d8" font-size="11" transform="rotate(-90 14,100)">Output (cookies)</text>
+    <text x="150" y="220" fill="#a6b0d8" font-size="11">Workers (labour)</text>
+    <path d="M45,195 C95,120 150,80 205,62 C255,48 300,44 330,42" fill="none" stroke="#7c8cff" stroke-width="3"/>
+    <circle cx="105" cy="125" r="3.5" fill="#4cc6ff"/><circle cx="165" cy="83" r="3.5" fill="#4cc6ff"/>
+    <circle cx="225" cy="60" r="3.5" fill="#4cc6ff"/><circle cx="285" cy="49" r="3.5" fill="#4cc6ff"/>
+    <text x="120" y="120" fill="#3ddc97" font-size="10">slope = MPL falls →</text>
+  </svg>`;
+}
+function gCostCurves(){
+  // U-shaped ATC + AVC, falling AFC, rising MC crossing ATC at min.
+  return `<svg viewBox="0 0 380 250" role="img" aria-label="Cost curves: MC crosses ATC and AVC at their minimums">
+    <line x1="48" y1="10" x2="48" y2="210" stroke="#5566aa" stroke-width="1.5"/>
+    <line x1="48" y1="210" x2="365" y2="210" stroke="#5566aa" stroke-width="1.5"/>
+    <text x="10" y="120" fill="#a6b0d8" font-size="11" transform="rotate(-90 16,120)">Cost ($/unit)</text>
+    <text x="180" y="235" fill="#a6b0d8" font-size="11">Quantity</text>
+    <!-- MC rising -->
+    <path d="M60,185 C110,175 150,150 190,118 C230,86 270,55 320,30" fill="none" stroke="#ff6b8a" stroke-width="3"/>
+    <!-- ATC U-shape, min ~ (210,110) -->
+    <path d="M60,150 C120,120 180,108 210,110 C260,114 300,95 330,70" fill="none" stroke="#3ddc97" stroke-width="3"/>
+    <!-- AVC U-shape lower, min left of ATC -->
+    <path d="M60,178 C110,150 150,140 185,140 C235,142 290,120 330,98" fill="none" stroke="#ffb454" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <!-- AFC falling -->
+    <path d="M60,120 C110,165 180,190 330,200" fill="none" stroke="#7c8cff" stroke-width="2" stroke-dasharray="3 4"/>
+    <!-- crossing point ATC min -->
+    <circle cx="210" cy="110" r="4.5" fill="#fff"/>
+    <line x1="210" y1="110" x2="210" y2="210" stroke="#fff" stroke-dasharray="2 3" stroke-width="1"/>
+    <text x="214" y="104" fill="#fff" font-size="10">MC = ATC = efficient scale</text>
+    <text x="322" y="26" fill="#ff6b8a" font-size="11">MC</text>
+    <text x="332" y="66" fill="#3ddc97" font-size="11">ATC</text>
+    <text x="332" y="96" fill="#ffb454" font-size="11">AVC</text>
+    <text x="332" y="198" fill="#7c8cff" font-size="11">AFC</text>
+  </svg>`;
+}
+function gMC_ATC(){
+  return `<svg viewBox="0 0 360 210" role="img" aria-label="Marginal cost crosses average total cost at the minimum">
+    <line x1="45" y1="10" x2="45" y2="175" stroke="#5566aa" stroke-width="1.5"/>
+    <line x1="45" y1="175" x2="345" y2="175" stroke="#5566aa" stroke-width="1.5"/>
+    <path d="M70,150 C120,140 160,110 200,86 C250,56 290,34 330,18" fill="none" stroke="#ff6b8a" stroke-width="3"/>
+    <path d="M60,120 C130,95 190,80 215,82 C265,86 305,70 332,50" fill="none" stroke="#3ddc97" stroke-width="3"/>
+    <circle cx="215" cy="82" r="4.5" fill="#fff"/>
+    <text x="222" y="78" fill="#fff" font-size="10">min ATC (MC=ATC)</text>
+    <text x="120" y="150" fill="#3ddc97" font-size="10">MC&lt;ATC: avg falls</text>
+    <text x="250" y="44" fill="#ff6b8a" font-size="10">MC&gt;ATC: avg rises</text>
+    <text x="320" y="14" fill="#ff6b8a" font-size="11">MC</text>
+    <text x="334" y="46" fill="#3ddc97" font-size="11">ATC</text>
+  </svg>`;
+}
+function gLongRun(){
+  return `<svg viewBox="0 0 380 220" role="img" aria-label="Long run average total cost: economies, constant, diseconomies of scale">
+    <line x1="48" y1="10" x2="48" y2="180" stroke="#5566aa" stroke-width="1.5"/>
+    <line x1="48" y1="180" x2="365" y2="180" stroke="#5566aa" stroke-width="1.5"/>
+    <text x="12" y="110" fill="#a6b0d8" font-size="11" transform="rotate(-90 16,110)">LRATC</text>
+    <text x="200" y="205" fill="#a6b0d8" font-size="11">Quantity (firm size)</text>
+    <path d="M65,60 C120,120 170,140 215,140 C260,140 300,120 345,70" fill="none" stroke="#4cc6ff" stroke-width="3"/>
+    <line x1="160" y1="180" x2="160" y2="40" stroke="#5566aa" stroke-dasharray="3 4"/>
+    <line x1="270" y1="180" x2="270" y2="40" stroke="#5566aa" stroke-dasharray="3 4"/>
+    <text x="62" y="35" fill="#3ddc97" font-size="10">economies</text>
+    <text x="180" y="35" fill="#ffd166" font-size="10">constant</text>
+    <text x="288" y="35" fill="#ff6b8a" font-size="10">diseconomies</text>
+  </svg>`;
+}
+
+/* ============================================================
+   GOODS MATRIX (Topic 2)
+   ============================================================ */
+function goodsMatrix(){
+  return `<div class="matrix">
+    <div class="cell corner"></div>
+    <div class="cell head">Rival ✅<br><span style="font-weight:400;font-size:11px;color:var(--muted)">my use reduces yours</span></div>
+    <div class="cell head">NOT rival ❌<br><span style="font-weight:400;font-size:11px;color:var(--muted)">we can share it</span></div>
+
+    <div class="cell head">Excludable ✅<br><span style="font-weight:400;font-size:11px;color:var(--muted)">can block non-payers</span></div>
+    <div class="cell g-priv"><b>Private goods</b><span class="ex">ice cream, clothing, a congested toll road. Markets handle these well.</span></div>
+    <div class="cell g-club"><b>Club goods</b><span class="ex">(natural monopolies) cable TV, fire protection, an uncongested toll road.</span></div>
+
+    <div class="cell head">NOT excludable ❌<br><span style="font-weight:400;font-size:11px;color:var(--muted)">can't block anyone</span></div>
+    <div class="cell g-comm"><b>Common resources</b><span class="ex">fish in the ocean, clean air, a congested non-toll road. → Tragedy of the Commons.</span></div>
+    <div class="cell g-pub"><b>Public goods</b><span class="ex">national defence, basic research, fireworks, an uncongested non-toll road. → Free-rider problem.</span></div>
+  </div>`;
+}
+
+/* ============================================================
+   CONTENT DATA — 10 topics, your exact 4-phase structure
+   ============================================================ */
+const TOPICS = [
+/* ---------- CH 11 ---------- */
+{
+  id:"t1", chapter:"Chapter 11", icon:"🚪", title:"Excludability & Rivalry — the two questions",
+  survey:["What makes a good 'excludable'?","What does 'rival in consumption' mean?","Are these two properties the same thing?"],
+  anchor:[
+    "Every good in the economy can be sorted by asking just <b>two yes/no questions</b>.",
+    "<b>Excludable?</b> — Can you stop someone who doesn't pay from using it? (a fence, a ticket gate, a Netflix password).",
+    "<b>Rival in consumption?</b> — If I use it, is there less left for you? (eating a slice of pizza is rival; watching a fireworks show is not).",
+    "These two questions are <b>independent</b> — a good can be one, both, or neither.",
+    "Knowing the two answers tells you the good's <b>category</b> and whether free markets will supply it properly."
+  ],
+  conceptCheck:[
+    {s:"Excludability means that one person's use of a good reduces the amount left for others.", a:false,
+     e:"That's <b>rivalry</b>, not excludability. Excludability is about whether you can <i>prevent</i> non-payers from using it."},
+    {s:"A fireworks display is non-excludable because you can't easily stop nearby people from watching.", a:true,
+     e:"Correct — anyone in view enjoys it whether they paid or not. That makes it non-excludable."}
+  ],
+  write:{
+    title:"The two-question test",
+    formula:"Good type = ( <b>Excludable?</b> ) × ( <b>Rival?</b> )",
+    rows:[
+      ["Uncongested toll road — Excludable?","Yes — a toll booth blocks non-payers"],
+      ["Uncongested toll road — Rival?","No — plenty of room, my driving doesn't crowd you out"],
+      ["→ Therefore it is a…","Club good (excludable, not rival)"]
+    ],
+    note:"Write the two questions at the top of your notes page. Every Ch 11 question is really just: <b>Excludable? Rival?</b>"
+  },
+  distractors:[
+    {t:"Trap: \"It's free, so it must be a public good.\"", w:"Free <i>at the point of use</i> is not the same as non-excludable + non-rival. A free but crowded road is a <b>common resource</b>, not a public good."},
+    {t:"Trap: mixing up the two words.", w:"<b>Excludable = can you block non-payers.</b> <b>Rival = does one person's use shrink what's left.</b> Keep them separate."}
+  ],
+  mcq:[
+    {q:"Which property describes a good where one person's use reduces what's available to others?",
+     o:["Excludability","Rivalry in consumption","Marginal utility","Elasticity"],c:1,
+     e:"Rivalry in consumption = my use leaves less for you."},
+    {q:"A password-protected streaming service is best described as:",
+     o:["Non-excludable","Excludable","Rival in consumption","A common resource"],c:1,
+     e:"The password lets the firm block non-payers → excludable."},
+    {q:"Which of these is NOT rival in consumption?",
+     o:["A hamburger","A litre of gasoline","A national radio broadcast","A concert ticket seat"],c:2,
+     e:"One more listener doesn't reduce the broadcast for anyone else → non-rival."},
+    {q:"Excludability matters for markets mainly because:",
+     o:["Non-excludable goods can't easily be sold for a profit","Excludable goods are always cheap","It determines elasticity","It sets the tax rate"],c:0,
+     e:"If you can't exclude non-payers, you can't reliably charge → private firms underprovide it."}
+  ],
+  mcqAlt:[
+    {q:"'Rival in consumption' is best illustrated by:",
+     o:["Listening to an over-the-air radio station","Eating a slice of pizza","Watching a public fireworks show","Breathing clean air on an empty trail"],c:1,
+     e:"Eating the slice means it's gone for everyone else → rival."},
+    {q:"A good that is excludable but not rival is a:",
+     o:["Private good","Public good","Club good","Common resource"],c:2,
+     e:"Excludable + non-rival = club good (e.g., cable TV)."},
+    {q:"Which best defines excludability?",
+     o:["The ability to prevent non-payers from using the good","The tendency for use to deplete the good","The slope of the demand curve","The firm's profit margin"],c:0,
+     e:"Excludability = you can keep non-payers out."}
+  ],
+  why:{q:"Why does it matter for government policy whether a good is excludable?",
+       r:"If a good is <b>non-excludable</b>, a private seller can't make users pay (they can't be blocked), so private firms won't supply enough of it. That market failure is exactly where government may need to step in and provide it, funded by taxes."},
+  recall:"Cover the screen. Out loud, give one example of a good for each combination: (excludable+rival), (excludable+non-rival), (non-excludable+rival), (non-excludable+non-rival)."
+},
+{
+  id:"t2", chapter:"Chapter 11", icon:"🔲", title:"The Four Types of Goods (the 2×2 grid)",
+  survey:["What are the four categories of goods?","Where does national defence fit?","How can the SAME road be in different boxes?"],
+  anchor:[
+    "Cross the two questions and you get a <b>2×2 grid → four types of goods</b>.",
+    "<b>Private goods</b> (excludable + rival): ice cream, clothing. Markets supply these just fine.",
+    "<b>Club goods</b> (excludable + NOT rival): cable TV, fire protection — also called natural monopolies.",
+    "<b>Common resources</b> (NOT excludable + rival): ocean fish, clean air — prone to overuse.",
+    "<b>Public goods</b> (NOT excludable + NOT rival): national defence, basic research, fireworks.",
+    "The same <b>road</b> can be all four depending on toll + congestion — that's the classic exam twist."
+  ],
+  conceptCheck:[
+    {s:"National defence is a public good because it is both non-excludable and non-rival.", a:true,
+     e:"Right — you can't exclude any citizen, and one person's protection doesn't reduce another's. Pure public good."},
+    {s:"Fish in the open ocean are a public good.", a:false,
+     e:"They're <b>rival</b> (a caught fish is gone) but non-excludable → that's a <b>common resource</b>, not a public good."}
+  ],
+  write:{
+    title:"The grid + the famous road example",
+    matrix:true,
+    rows:[
+      ["Uncongested non-toll road","Public good (can't exclude, not rival)"],
+      ["Congested non-toll road","Common resource (can't exclude, now rival — traffic!)"],
+      ["Uncongested toll road","Club good (exclude via toll, not rival)"],
+      ["Congested toll road","Private good (exclude via toll, rival from traffic)"]
+    ],
+    note:"Copy the 2×2 grid into your notes once. If you can rebuild this grid from memory you've got half of Chapter 11."
+  },
+  distractors:[
+    {t:"Trap: \"Cable TV is a public good because millions watch it.\"", w:"It's <b>excludable</b> (you need a subscription) → it's a <b>club good</b>, not a public good. Many viewers ≠ public good."},
+    {t:"Trap: confusing club goods and public goods.", w:"Both are non-rival. The difference is <b>excludability</b>: club goods CAN block non-payers (toll, subscription); public goods cannot."}
+  ],
+  mcq:[
+    {q:"A congested non-toll road is an example of a:",
+     o:["Public good","Private good","Common resource","Club good"],c:2,
+     e:"Can't exclude (no toll) but congestion makes it rival → common resource."},
+    {q:"Which is a pure public good?",
+     o:["A cheeseburger","National defence","A fish in the sea","A cable TV subscription"],c:1,
+     e:"National defence is non-excludable and non-rival."},
+    {q:"Club goods are characterized by being:",
+     o:["Excludable and rival","Excludable and non-rival","Non-excludable and rival","Non-excludable and non-rival"],c:1,
+     e:"Excludable + non-rival (e.g., cable TV, fire protection)."},
+    {q:"An uncongested toll road moves from 'club good' to 'private good' when:",
+     o:["The toll is removed","It becomes congested","It is repaved","Demand falls"],c:1,
+     e:"Congestion adds rivalry; the toll already provides excludability → private good."}
+  ],
+  mcqAlt:[
+    {q:"Common resources are:",
+     o:["Excludable but not rival","Non-excludable but rival","Both excludable and rival","Neither"],c:1,
+     e:"Non-excludable + rival → leads to the Tragedy of the Commons."},
+    {q:"Which good would markets supply most efficiently on their own?",
+     o:["National defence","A private good like ice cream","Clean ocean air","A public fireworks show"],c:1,
+     e:"Private goods (excludable + rival) are handled well by markets."},
+    {q:"Fire protection that serves a whole town without crowding is best classed as:",
+     o:["Private good","Public good","Club good","Common resource"],c:2,
+     e:"It can be excludable (you pay the town) and is largely non-rival → club good in Mankiw's framework."}
+  ],
+  why:{q:"Why can the very same highway be a public good on a quiet morning but a common resource at rush hour?",
+       r:"Excludability doesn't change (still no toll), but <b>rivalry does</b>. When empty, my driving doesn't reduce your space (non-rival → public good). When congested, every extra car slows everyone down (now rival → common resource)."},
+  recall:"From memory, draw the empty 2×2 (Excludable yes/no × Rival yes/no) and fill in the four type names plus one example each."
+},
+{
+  id:"t3", chapter:"Chapter 11", icon:"🎟️", title:"Public Goods & the Free-Rider Problem",
+  survey:["What is a free rider?","Why won't private markets supply public goods?","When should government provide a public good?"],
+  anchor:[
+    "A <b>free rider</b> receives the benefit of a good but avoids paying for it.",
+    "Because public goods are <b>non-excludable</b>, sellers can't force anyone to pay → the private market supplies <b>too little</b> (or none).",
+    "Government can fix this: provide the good and fund it with <b>taxes</b> — but only worthwhile if <b>total benefits &gt; total costs</b>.",
+    "Important public goods: <b>national defence, basic research</b> (general knowledge is non-excludable; patents make <i>applied</i> research excludable), and <b>fighting poverty</b> (anti-poverty programs)."
+  ],
+  conceptCheck:[
+    {s:"The free-rider problem causes private markets to OVER-produce public goods.", a:false,
+     e:"Opposite — it causes <b>under</b>-production, because firms can't get non-payers to pay, so they don't supply it."},
+    {s:"Government should provide a public good only if the total benefits exceed the total costs.", a:true,
+     e:"Correct — that's the cost-benefit rule. If benefits beat costs, public provision can make everyone better off."}
+  ],
+  write:{
+    title:"Fireworks: why the market fails (real numbers)",
+    formula:"Provide it if &nbsp; <b>Total Benefit</b> &nbsp;&gt;&nbsp; <b>Total Cost</b>",
+    rows:[
+      ["Town residents","500 people"],
+      ["Value to each person","$10  → Total benefit = 500 × $10 = $5,000"],
+      ["Cost of the display","$1,000"],
+      ["Private seller outcome","Can't sell tickets (non-excludable) → $0 shows, even though $5,000 > $1,000"],
+      ["Government fix","Tax each person $2 (=$1,000). Everyone gains $8 of net value."]
+    ],
+    note:"≤5 lines: TB = 500×$10 = $5,000; TC = $1,000; TB>TC ✔; market provides 0 (free riders); govt + $2 tax → everyone better off."
+  },
+  distractors:[
+    {t:"Trap: \"Free riding means the good is free to produce.\"", w:"No — the fireworks still cost $1,000. The problem is <b>collecting payment</b>, not the cost of making it."},
+    {t:"Trap: \"Basic research is supplied well by private markets.\"", w:"General knowledge is non-excludable once discovered → under-supplied. <b>Patents</b> only make <i>applied</i> research excludable; basic research still needs public funding."}
+  ],
+  mcq:[
+    {q:"The free-rider problem arises because public goods are:",
+     o:["Rival in consumption","Non-excludable","Too expensive","Always provided by firms"],c:1,
+     e:"Non-excludability means you can't make beneficiaries pay → free riding."},
+    {q:"A town of 500 values fireworks at $10 each; the display costs $1,000. Efficient outcome?",
+     o:["Don't provide — too costly","Provide it; benefits ($5,000) exceed cost ($1,000)","Let a firm sell tickets","Provide only if firms profit"],c:1,
+     e:"$5,000 > $1,000, but the market won't do it (free riders), so government provision is efficient."},
+    {q:"Which is the BEST example of a public good?",
+     o:["A patented medicine","National defence","A toll bridge","A bushel of wheat"],c:1,
+     e:"National defence is non-excludable and non-rival."},
+    {q:"Patents help with research because they:",
+     o:["Make applied research temporarily excludable, encouraging private R&D","Lower the cost of discovery","Make knowledge rival","Eliminate the free-rider problem entirely"],c:0,
+     e:"A patent lets an inventor exclude others for a time → restores the profit incentive for applied research."}
+  ],
+  mcqAlt:[
+    {q:"Because of free riding, private provision of a public good tends to be:",
+     o:["Greater than efficient","Exactly efficient","Less than efficient","Unaffected"],c:2,
+     e:"Free riding → under-provision, below the efficient quantity."},
+    {q:"Government provision of a public good improves welfare only when:",
+     o:["The good is rival","Benefits exceed costs","Firms refuse to make it","Taxes are zero"],c:1,
+     e:"Cost-benefit rule: provide only if total benefit > total cost."},
+    {q:"Which is a public good the government commonly provides?",
+     o:["Smartphones","Basic scientific research","Designer clothing","Restaurant meals"],c:1,
+     e:"Basic research yields non-excludable knowledge → publicly funded."}
+  ],
+  why:{q:"If everyone in your dorm benefits from a clean common kitchen but no one is forced to clean it, why does it stay dirty — and how is that the free-rider problem?",
+       r:"Each person hopes <b>someone else</b> will do the cleaning while they still enjoy the clean kitchen (the benefit is non-excludable). Everyone free-rides → the 'good' (cleanliness) is under-provided. A rule/chore-tax (like government taxation) forces contributions and fixes it."},
+  recall:"Explain out loud, in under 30 seconds, why a private company won't sell you national defence."
+},
+{
+  id:"t4", chapter:"Chapter 11", icon:"⚖️", title:"Cost-Benefit Analysis of Public Goods",
+  survey:["What is cost-benefit analysis?","Why is it hard for public goods?","How do we value things without prices?"],
+  anchor:[
+    "To decide whether to provide a public good, government does a <b>cost-benefit analysis</b>: compare total benefits vs total costs.",
+    "It's <b>hard</b> because public goods have <b>no market price</b> — no buyers and sellers reveal value.",
+    "Analysts must <b>estimate</b> values, even uncomfortable ones like the value of a human life or of a saved hour.",
+    "The estimates are rough, but ignoring benefits (treating them as $0) would bias decisions against good projects."
+  ],
+  conceptCheck:[
+    {s:"Cost-benefit analysis is easy for public goods because they have clear market prices.", a:false,
+     e:"The opposite — there are <b>no prices</b>, so benefits must be estimated. That's what makes it hard."},
+    {s:"A government should provide a public good if its total benefits exceed its total costs.", a:true,
+     e:"Yes — that's the decision rule cost-benefit analysis is built on."}
+  ],
+  write:{
+    title:"Should the town install a traffic light? (real numbers)",
+    formula:"Build if &nbsp; <b>Expected Benefit</b> &nbsp;&gt;&nbsp; <b>Cost</b>",
+    rows:[
+      ["Cost of the light","$10,000 per year"],
+      ["Estimated value of a life","$10,000,000"],
+      ["Reduction in fatal-accident risk","0.5% = 0.005 per year"],
+      ["Expected benefit","0.005 × $10,000,000 = $50,000"],
+      ["Decision","$50,000 > $10,000 → build it"]
+    ],
+    note:"≤5 lines: benefit = risk-drop × value of life = 0.005 × $10M = $50,000; cost = $10,000; 50,000 > 10,000 ⇒ install."
+  },
+  distractors:[
+    {t:"Trap: \"We can't measure a life, so set the benefit to zero.\"", w:"Treating un-priced benefits as $0 means we'd <b>never</b> build worthwhile safety projects. Analysts use estimated values precisely to avoid this bias."},
+    {t:"Trap: comparing only the dollar cost and ignoring risk/lives.", w:"The benefit side often includes <b>non-monetary outcomes</b> (lives, time, health) converted to dollars — that's the whole point of cost-benefit analysis."}
+  ],
+  mcq:[
+    {q:"Cost-benefit analysis of a public good is difficult primarily because:",
+     o:["The good is rival","There are no market prices to reveal value","Firms refuse to build it","It is always too expensive"],c:1,
+     e:"No prices → benefits must be estimated, which is the hard part."},
+    {q:"A safety project costs $10,000 and is expected to save $50,000 in value. The government should:",
+     o:["Reject it","Undertake it — benefits exceed costs","Charge tolls","Wait for a firm"],c:1,
+     e:"$50,000 > $10,000 → efficient to provide."},
+    {q:"Why might analysts estimate 'the value of a human life'?",
+     o:["To put a price on un-priced safety benefits so projects can be compared","To tax citizens","Because lives are rival goods","To set interest rates"],c:0,
+     e:"It lets non-market benefits enter the cost-benefit comparison."},
+    {q:"Ignoring hard-to-measure benefits in cost-benefit analysis tends to:",
+     o:["Over-provide public goods","Bias decisions against valuable projects","Have no effect","Eliminate free riders"],c:1,
+     e:"Counting valuable benefits as zero pushes you to reject good projects."}
+  ],
+  mcqAlt:[
+    {q:"The central comparison in cost-benefit analysis is:",
+     o:["Price vs quantity","Total benefits vs total costs","Supply vs demand elasticity","Fixed vs variable cost"],c:1,
+     e:"Provide the public good only if total benefits exceed total costs."},
+    {q:"Cost-benefit analysis is mainly used to decide:",
+     o:["A firm's profit-maximizing output","Whether/how much of a public good to provide","The market price of bread","A worker's wage"],c:1,
+     e:"It guides public-good provision decisions."},
+    {q:"The biggest practical challenge in cost-benefit analysis is:",
+     o:["Adding up explicit money costs","Estimating benefits that have no market price","Reading a demand curve","Computing marginal cost"],c:1,
+     e:"Valuing un-priced benefits (lives, time, clean air) is the hard part."}
+  ],
+  why:{q:"Why is putting a dollar value on a human life uncomfortable but still necessary in public decision-making?",
+       r:"It feels wrong to price a life, but governments <b>must</b> choose how to spend limited funds (more stoplights? more nurses?). Without some estimated value, beneficial safety projects could never be justified against their costs. The number isn't claiming a life is 'only' worth that — it's a tool for consistent comparison."},
+  recall:"State the cost-benefit decision rule in one sentence, then give one reason it's hard for public goods."
+},
+{
+  id:"t5", chapter:"Chapter 11", icon:"🐘", title:"Common Resources & the Tragedy of the Commons",
+  survey:["What is a common resource?","What is the Tragedy of the Commons?","What externality causes it, and how do we fix it?"],
+  anchor:[
+    "A <b>common resource</b> is rival but non-excludable — free to use, yet your use leaves less for everyone else.",
+    "<b>Tragedy of the Commons</b>: because the resource is free, each user overuses it, ignoring the cost imposed on others. Result: it's depleted.",
+    "It's caused by a <b>negative externality</b> — your use harms others, but you don't pay for that harm.",
+    "Classic parable: a town's shared grazing field gets overgrazed and ruined. Real-world: <b>overfishing, congested roads, polluted air/water, elephant poaching for ivory</b>.",
+    "Fixes: <b>regulation</b> (quotas), <b>corrective taxes</b>, or <b>assigning property rights</b> / licences so the resource is no longer 'free for all'."
+  ],
+  conceptCheck:[
+    {s:"The Tragedy of the Commons happens because common resources are non-rival.", a:false,
+     e:"They ARE rival — that's the whole problem. Each use depletes the resource for others."},
+    {s:"Assigning property rights (e.g., fishing licences) can help solve the Tragedy of the Commons.", a:true,
+     e:"Correct — giving owners a stake means they internalize the cost of overuse, so they conserve."}
+  ],
+  write:{
+    title:"Why the commons gets wrecked (the logic + fixes)",
+    formula:"Common resource = <b>rival</b> + <b>non-excludable</b> &nbsp;→&nbsp; negative externality &nbsp;→&nbsp; overuse",
+    rows:[
+      ["The free fishery","Each boat keeps what it catches but ignores fewer fish left for others"],
+      ["Negative externality","One extra catch lowers everyone else's future haul — an uncharged cost"],
+      ["Fix #1 Regulation","Catch quotas / limited seasons"],
+      ["Fix #2 Corrective tax","Tax each unit of use to reflect the harm"],
+      ["Fix #3 Property rights","Sell fishing/hunting licences → owners conserve their asset"]
+    ],
+    note:"Real example from class: burning ivory stockpiles + poaching bans aim to stop the 'tragedy' for elephants (a common resource)."
+  },
+  distractors:[
+    {t:"Trap: \"A common resource is the same as a public good.\"", w:"Both are non-excludable, but <b>common resources are rival</b> (use depletes them) while public goods are not. That difference is why commons get overused."},
+    {t:"Trap: \"The tragedy is a positive externality.\"", w:"It's a <b>negative</b> externality — your use harms others. Positive externalities cause <i>under</i>-use, not overuse."}
+  ],
+  mcq:[
+    {q:"The Tragedy of the Commons occurs because a common resource is:",
+     o:["Excludable and rival","Non-excludable and rival","Non-excludable and non-rival","Excludable and non-rival"],c:1,
+     e:"Free to access (non-excludable) but depletable (rival) → overuse."},
+    {q:"The externality at the heart of the Tragedy of the Commons is:",
+     o:["Positive","Negative","Nonexistent","Always taxed"],c:1,
+     e:"Each user imposes an uncharged cost on others → negative externality."},
+    {q:"Which policy directly turns a common resource toward a private good to reduce overuse?",
+     o:["Doing nothing","Assigning property rights / licences","Lowering its price","Advertising it more"],c:1,
+     e:"Property rights give owners an incentive to conserve."},
+    {q:"Which is a common resource?",
+     o:["A patented drug","Fish in international waters","A cheeseburger","Cable TV"],c:1,
+     e:"Ocean fish: non-excludable but rival → common resource."}
+  ],
+  mcqAlt:[
+    {q:"Overfishing is an example of:",
+     o:["The free-rider problem","The Tragedy of the Commons","A natural monopoly","Economies of scale"],c:1,
+     e:"A rival, non-excludable resource being overused."},
+    {q:"A corrective (Pigovian) tax on a common resource works by:",
+     o:["Making the good non-rival","Forcing users to bear the cost they impose on others","Eliminating property rights","Raising fixed costs"],c:1,
+     e:"It internalizes the negative externality, cutting overuse."},
+    {q:"Compared with a public good, a common resource is different because it is:",
+     o:["Excludable","Rival in consumption","Non-rival","Provided by firms"],c:1,
+     e:"Rivalry is the key difference → depletion risk."}
+  ],
+  why:{q:"Why does giving each fisher a tradable catch quota tend to protect a fishery better than just hoping everyone restrains themselves?",
+       r:"Voluntary restraint fails because any fish <i>you</i> leave can simply be caught by someone else — you bear the cost but others get the benefit. A quota assigns each fisher a defined, valuable right, so over-fishing now costs <b>them</b> (their future quota/asset value). The externality is internalized, so conservation becomes self-interested."},
+  recall:"Tell the grazing-field parable in your own words in 3 sentences, then name two fixes."
+},
+/* ---------- CH 13 ---------- */
+{
+  id:"t6", chapter:"Chapter 13", icon:"💰", title:"Costs, Revenue & Profit (explicit vs implicit)",
+  survey:["How is profit defined?","What's the difference between explicit and implicit costs?","How do economic and accounting profit differ?"],
+  anchor:[
+    "A firm's goal is to <b>maximize profit</b>.",
+    "<b>Total revenue (TR)</b> = money from sales. <b>Total cost (TC)</b> = the value of <i>all</i> inputs. <b>Profit = TR − TC.</b>",
+    "<b>Explicit costs</b> require paying out money (wages, rent, materials).",
+    "<b>Implicit costs</b> are opportunity costs with no cash outlay (the salary you gave up; forgone interest on your own money).",
+    "Economists count BOTH explicit + implicit. Accountants count only explicit → that's why <b>economic profit &lt; accounting profit</b>."
+  ],
+  conceptCheck:[
+    {s:"Implicit costs require a direct outlay of money by the firm.", a:false,
+     e:"No — implicit costs are opportunity costs with <b>no cash changing hands</b> (e.g., forgone salary)."},
+    {s:"When implicit costs are positive, economic profit is smaller than accounting profit.", a:true,
+     e:"Right — economists subtract implicit costs too, so economic profit comes out lower."}
+  ],
+  write:{
+    title:"Caroline's cookie factory (real numbers)",
+    formula:"Accounting profit = TR − explicit &nbsp;|&nbsp; <b>Economic profit = TR − (explicit + implicit)</b>",
+    rows:[
+      ["Total revenue (TR)","$300,000"],
+      ["Explicit costs (flour, wages, rent)","$200,000"],
+      ["Implicit cost (forgone $100k programmer salary)","$100,000"],
+      ["Accounting profit","$300,000 − $200,000 = $100,000"],
+      ["Economic profit","$300,000 − $300,000 = $0 (just breaking even)"]
+    ],
+    note:"≤5 lines: TR 300k; explicit 200k; implicit 100k; accounting = 100k; economic = 0. Economic profit 0 means the business is worth exactly as much as her next-best option."
+  },
+  distractors:[
+    {t:"Trap: \"Economic profit equals accounting profit.\"", w:"Only when implicit costs are zero. Whenever the owner gives up a salary or invests their own money, economic profit is <b>lower</b>."},
+    {t:"Trap: \"The forgone $100k salary isn't a cost because no cheque is written.\"", w:"It absolutely is — it's an <b>implicit (opportunity) cost</b>. Economists always include it."}
+  ],
+  mcq:[
+    {q:"Profit is defined as:",
+     o:["Total revenue × quantity","Total revenue − total cost","Price − marginal cost","Total cost − fixed cost"],c:1,
+     e:"Profit = TR − TC."},
+    {q:"A forgone salary the owner could have earned elsewhere is a(n):",
+     o:["Explicit cost","Implicit cost","Fixed revenue","Marginal product"],c:1,
+     e:"It's an opportunity cost with no outlay → implicit cost."},
+    {q:"TR = $300k, explicit costs = $200k, implicit costs = $100k. Economic profit =",
+     o:["$100,000","$0","$200,000","−$100,000"],c:1,
+     e:"300k − (200k + 100k) = $0."},
+    {q:"Accounting profit is generally ___ economic profit.",
+     o:["less than","equal to","greater than or equal to","unrelated to"],c:2,
+     e:"Accountants ignore implicit costs, so accounting profit ≥ economic profit."}
+  ],
+  mcqAlt:[
+    {q:"Which is an explicit cost?",
+     o:["Forgone interest on the owner's savings","Wages paid to employees","The owner's lost salary","Forgone rent on owner-occupied space"],c:1,
+     e:"Wages are an actual money outlay → explicit."},
+    {q:"Economic profit equals:",
+     o:["TR − explicit costs","TR − implicit costs","TR − (explicit + implicit costs)","Explicit + implicit costs"],c:2,
+     e:"Economists subtract all opportunity costs."},
+    {q:"If a firm earns zero economic profit, it is:",
+     o:["Losing money and should exit","Earning exactly its opportunity cost (normal profit)","Earning huge profits","Bankrupt"],c:1,
+     e:"Zero economic profit = the resources earn just as much as their next-best use."}
+  ],
+  why:{q:"Why might a business with a healthy $100,000 accounting profit actually be a poor use of the owner's time and money?",
+       r:"If the owner gave up a $100,000 salary (and/or interest on invested savings), those <b>implicit costs</b> eat the entire accounting profit. Economic profit is $0 — meaning the owner is earning <i>exactly</i> what they'd get elsewhere, with no real gain for the extra risk and effort."},
+  recall:"Define explicit vs implicit cost out loud, then state the two profit formulas from memory."
+},
+{
+  id:"t7", chapter:"Chapter 13", icon:"👷", title:"Production Function & Marginal Product",
+  survey:["What is a production function?","What is the marginal product of labour?","Why does marginal product diminish?"],
+  anchor:[
+    "The <b>production function</b> links inputs (e.g., workers) to output (e.g., cookies).",
+    "<b>Marginal product of labour (MPL)</b> = the extra output from hiring one more worker.",
+    "<b>Diminishing marginal product</b>: adding more of one input while others stay fixed means each new worker adds <i>less</i> than the last.",
+    "Why? The kitchen/factory is fixed — more workers start crowding and waiting for equipment.",
+    "On a graph the production function gets <b>flatter</b> as labour rises. That flattening is what later makes the cost curve <b>steeper</b>."
+  ],
+  conceptCheck:[
+    {s:"Marginal product of labour is total output divided by the number of workers.", a:false,
+     e:"That's <b>average</b> product. MPL is the <b>change</b> in output from one more worker (ΔQ/ΔL)."},
+    {s:"Diminishing marginal product means each extra worker adds less output than the previous one.", a:true,
+     e:"Exactly — total output still rises, but by smaller and smaller amounts."}
+  ],
+  write:{
+    title:"Caroline's workers → cookies (real numbers)",
+    formula:"MPL = <b>ΔQ / ΔL</b> &nbsp; (change in output per extra worker)",
+    rows:[
+      ["0 → 1 worker: output 0 → 50","MPL = 50"],
+      ["1 → 2 workers: output 50 → 90","MPL = 40"],
+      ["2 → 3 workers: 90 → 120","MPL = 30"],
+      ["3 → 4 workers: 120 → 140","MPL = 20"],
+      ["4 → 5 workers: 140 → 150","MPL = 10  (diminishing!)"]
+    ],
+    note:"≤5 lines: MPL falls 50→40→30→20→10. Total output keeps rising but the EXTRA cookies per worker shrink → diminishing marginal product.",
+    graph:"production"
+  },
+  distractors:[
+    {t:"Trap: \"Diminishing marginal product means total output falls.\"", w:"No — total output still <b>rises</b> (50→90→120…). It's the <i>added</i> output per worker that shrinks."},
+    {t:"Trap: mixing up MPL and average product.", w:"MPL = ΔQ/ΔL (the jump from one more worker). Average product = Q/L (total per worker). They are different numbers."}
+  ],
+  mcq:[
+    {q:"Marginal product of labour is:",
+     o:["Total output ÷ workers","Change in output from one more worker","Output × price","Cost ÷ output"],c:1,
+     e:"MPL = ΔQ/ΔL."},
+    {q:"Output goes from 90 to 120 when the 3rd worker is added. MPL of that worker is:",
+     o:["120","90","30","40"],c:2,
+     e:"120 − 90 = 30."},
+    {q:"Diminishing marginal product occurs mainly because:",
+     o:["Workers get lazy","A fixed input (e.g., factory size) gets crowded","Prices fall","Wages rise"],c:1,
+     e:"With capital fixed, extra workers add less and less."},
+    {q:"As marginal product diminishes, the production-function curve becomes:",
+     o:["Steeper","Flatter","Vertical","A straight 45° line"],c:1,
+     e:"Smaller output gains per worker → flatter slope."}
+  ],
+  mcqAlt:[
+    {q:"If the 5th worker raises output from 140 to 150, MPL =",
+     o:["150","10","140","50"],c:1,
+     e:"150 − 140 = 10."},
+    {q:"Diminishing marginal product implies that, as labour rises, MPL:",
+     o:["Increases","Stays constant","Decreases","Becomes negative immediately"],c:2,
+     e:"Each added worker contributes less → MPL falls."},
+    {q:"The production function shows the relationship between:",
+     o:["Price and quantity demanded","Inputs used and output produced","Revenue and profit","Fixed and variable cost"],c:1,
+     e:"Inputs → output."}
+  ],
+  why:{q:"Why does the flattening of the production function (diminishing MPL) cause the firm's total-cost curve to get steeper as output rises?",
+       r:"As MPL falls, each additional unit of output needs <b>more and more extra labour</b> to produce. More labour per extra cookie means each extra cookie costs more → total cost rises at an <b>increasing</b> rate, so the total-cost curve steepens. Diminishing MPL and rising marginal cost are two sides of the same coin."},
+  recall:"Cover the table and re-derive the MPL column (50,40,30,20,10) from the output numbers. Say why it falls."
+},
+{
+  id:"t8", chapter:"Chapter 13", icon:"🧾", title:"The Various Measures of Cost",
+  survey:["What are fixed vs variable costs?","How do you get ATC, AVC, AFC?","What is marginal cost?"],
+  anchor:[
+    "<b>Fixed cost (FC)</b>: doesn't change with output (rent, equipment). <b>Variable cost (VC)</b>: changes with output (ingredients, hourly labour).",
+    "<b>Total cost: TC = FC + VC.</b>",
+    "<b>Average fixed cost AFC = FC/Q</b> — always falls as Q rises ('spreading the overhead').",
+    "<b>Average variable cost AVC = VC/Q</b>, and <b>average total cost ATC = TC/Q = AFC + AVC.</b>",
+    "<b>Marginal cost MC = ΔTC/ΔQ</b> — the cost of producing one more unit. This is the key decision number."
+  ],
+  conceptCheck:[
+    {s:"Average fixed cost falls continuously as output increases.", a:true,
+     e:"Yes — the same fixed cost is divided over more units, so AFC always declines."},
+    {s:"Marginal cost is total cost divided by quantity.", a:false,
+     e:"That's <b>average</b> total cost. Marginal cost is the <b>change</b> in total cost from one more unit (ΔTC/ΔQ)."}
+  ],
+  write:{
+    title:"Thirsty Thelma's lemonade stand (real numbers)",
+    formula:"TC = FC + VC &nbsp;|&nbsp; ATC = TC/Q &nbsp;|&nbsp; <b>MC = ΔTC/ΔQ</b>",
+    rows:[
+      ["Fixed cost (rent on stand)","$3.00 (paid even at Q = 0)"],
+      ["Q = 5 glasses: total cost","$6.50  → ATC = 6.50/5 = $1.30"],
+      ["At Q = 5: AFC","3.00/5 = $0.60"],
+      ["At Q = 5: AVC","3.50/5 = $0.70  (note 0.60 + 0.70 = 1.30 = ATC)"],
+      ["MC of the 5th glass","TC rose 5.40 → 6.50, so MC = $1.10"]
+    ],
+    note:"≤5 lines: TC=FC+VC; ATC=TC/Q; AFC+AVC=ATC; MC=ΔTC. Check: at Q=5, AFC 0.60 + AVC 0.70 = ATC 1.30 ✔."
+  },
+  distractors:[
+    {t:"Trap: \"Fixed costs change when output changes.\"", w:"By definition FC is <b>constant</b> with output. Only <i>average</i> fixed cost (AFC) changes — because you divide by Q."},
+    {t:"Trap: \"ATC = AVC\" (forgetting AFC).", w:"<b>ATC = AVC + AFC.</b> Leaving out AFC understates average total cost, a favourite exam trap."}
+  ],
+  mcq:[
+    {q:"Total cost equals:",
+     o:["FC − VC","FC + VC","VC ÷ Q","MC × Q"],c:1,
+     e:"TC = fixed + variable cost."},
+    {q:"At Q = 5, TC = $6.50. Average total cost is:",
+     o:["$6.50","$1.30","$0.65","$3.25"],c:1,
+     e:"ATC = TC/Q = 6.50/5 = $1.30."},
+    {q:"Marginal cost is defined as:",
+     o:["TC ÷ Q","ΔTC ÷ ΔQ","FC ÷ Q","VC × Q"],c:1,
+     e:"MC = change in total cost from one more unit."},
+    {q:"Which statement is always true?",
+     o:["ATC = AVC","AFC rises with output","ATC = AFC + AVC","MC = AFC"],c:2,
+     e:"Average total cost is average fixed plus average variable cost."}
+  ],
+  mcqAlt:[
+    {q:"Average fixed cost as output rises:",
+     o:["Always rises","Always falls","Stays constant","Is U-shaped"],c:1,
+     e:"FC ÷ a bigger Q → AFC keeps falling."},
+    {q:"If TC goes from $5.40 to $6.50 when output rises by one glass, MC is:",
+     o:["$6.50","$1.10","$5.40","$0.65"],c:1,
+     e:"ΔTC = 6.50 − 5.40 = $1.10 for one more unit."},
+    {q:"Rent paid whether or not any output is produced is a:",
+     o:["Variable cost","Marginal cost","Fixed cost","Implicit revenue"],c:2,
+     e:"It doesn't vary with output → fixed cost."}
+  ],
+  why:{q:"Why does average total cost eventually rise even though average fixed cost keeps falling forever?",
+       r:"AFC always declines (spreading overhead), which pulls ATC down at first. But <b>average variable cost eventually rises</b> (because of diminishing marginal product → rising MC). Past some point the rising AVC outweighs the shrinking AFC, so ATC turns upward — giving the U-shape."},
+  recall:"From memory, write the four cost formulas (TC, ATC, AVC, MC) and verify AFC+AVC=ATC at Thelma's Q=5."
+},
+{
+  id:"t9", chapter:"Chapter 13", icon:"📉", title:"Cost Curves & Their Relationships",
+  survey:["What shape is the ATC curve?","Where does MC cross ATC?","What is efficient scale?"],
+  anchor:[
+    "The <b>marginal-cost (MC)</b> curve slopes upward (because of diminishing marginal product).",
+    "The <b>average-total-cost (ATC)</b> curve is <b>U-shaped</b>: it falls, bottoms out, then rises.",
+    "<b>Efficient scale</b> = the quantity that <b>minimizes ATC</b> (the bottom of the U).",
+    "Key rule: <b>MC crosses ATC at ATC's minimum.</b> When MC &lt; ATC, average is falling; when MC &gt; ATC, average is rising.",
+    "Analogy: your <b>GPA</b> (average) vs your <b>next course grade</b> (marginal). A grade below your GPA pulls it down; above it pulls it up; equal leaves it flat (the bottom)."
+  ],
+  conceptCheck:[
+    {s:"When marginal cost is below average total cost, ATC is falling.", a:true,
+     e:"Correct — a 'next unit' cheaper than the current average drags the average down."},
+    {s:"The marginal-cost curve crosses the average-total-cost curve at the MAXIMUM of ATC.", a:false,
+     e:"It crosses at the <b>minimum</b> of ATC — the efficient scale, the bottom of the U."}
+  ],
+  write:{
+    title:"Thelma's efficient scale (real numbers)",
+    formula:"At efficient scale: &nbsp; <b>MC = ATC = minimum ATC</b>",
+    rows:[
+      ["ATC at Q = 4","$1.35"],
+      ["ATC at Q = 5","$1.30  ← lowest"],
+      ["ATC at Q = 6","$1.30 / starting to rise"],
+      ["MC at the bottom","MC ≈ ATC ≈ $1.30 where they cross"],
+      ["Efficient scale","≈ 5–6 glasses (minimum ATC)"]
+    ],
+    note:"≤5 lines: ATC U-shaped, min ≈ $1.30 at Q≈5–6. MC cuts ATC there. MC<ATC → ATC↓; MC>ATC → ATC↑.",
+    graph:"mcatc"
+  },
+  distractors:[
+    {t:"Trap: \"MC crosses ATC at its maximum / highest point.\"", w:"It crosses at the <b>minimum</b>. Below the min, MC<ATC (falling); above it, MC>ATC (rising)."},
+    {t:"Trap: \"ATC always falls as output rises.\"", w:"ATC is <b>U-shaped</b>. It only falls until the efficient scale, then rises as MC climbs above it."}
+  ],
+  mcq:[
+    {q:"The marginal-cost curve crosses the average-total-cost curve at:",
+     o:["ATC's maximum","ATC's minimum (efficient scale)","Q = 0","The fixed-cost line"],c:1,
+     e:"MC = ATC at the bottom of the U → efficient scale."},
+    {q:"When MC > ATC, average total cost is:",
+     o:["Falling","Rising","Constant","Zero"],c:1,
+     e:"A 'next unit' costlier than the average pulls the average up."},
+    {q:"Efficient scale is the quantity that:",
+     o:["Maximizes revenue","Minimizes average total cost","Maximizes marginal cost","Sets MC = 0"],c:1,
+     e:"It's the output at the minimum of ATC."},
+    {q:"The ATC curve is typically:",
+     o:["Upward sloping straight line","Downward sloping straight line","U-shaped","Flat"],c:2,
+     e:"Falls then rises → U-shaped."}
+  ],
+  mcqAlt:[
+    {q:"If MC < ATC, then as output rises ATC will:",
+     o:["Rise","Fall","Stay the same","Become negative"],c:1,
+     e:"Marginal below average drags the average down."},
+    {q:"At the efficient scale:",
+     o:["MC = AFC","MC = ATC","MC = 0","ATC = FC"],c:1,
+     e:"MC equals ATC at ATC's minimum."},
+    {q:"The 'GPA vs next-course-grade' analogy explains the relationship between:",
+     o:["FC and VC","Average and marginal values","Supply and demand","Explicit and implicit cost"],c:1,
+     e:"Marginal pulls the average toward itself — the core average/marginal rule."}
+  ],
+  why:{q:"Why must the MC curve pass through the lowest point of the ATC curve — not somewhere to the left or right?",
+       r:"Whenever MC is below ATC, each extra unit is cheaper than the running average, so ATC <b>must</b> be falling. Whenever MC is above ATC, ATC <b>must</b> be rising. ATC can only switch from falling to rising at one point — its minimum — and that switch happens exactly where MC has just caught up to ATC, i.e. MC = ATC. So the crossing can <i>only</i> be at the bottom."},
+  recall:"Re-draw the U-shaped ATC with the rising MC slicing through its bottom. Label efficient scale and the MC<ATC / MC>ATC regions."
+},
+{
+  id:"t10", chapter:"Chapter 13", icon:"🏭", title:"Short Run vs Long Run & Economies of Scale",
+  survey:["What's the difference between short run and long run?","What does the long-run ATC look like?","What are economies and diseconomies of scale?"],
+  anchor:[
+    "<b>Short run:</b> at least one input is fixed (you can't change factory size). <b>Long run:</b> ALL inputs are variable (you can build a new plant).",
+    "There are <b>no fixed costs in the long run</b> — given enough time, everything can change.",
+    "The <b>long-run ATC curve</b> is flatter and 'wraps under' the short-run curves (an envelope).",
+    "<b>Economies of scale:</b> long-run ATC <b>falls</b> as output rises (specialization, bulk buying).",
+    "<b>Diseconomies of scale:</b> long-run ATC <b>rises</b> (coordination problems in huge firms). <b>Constant returns:</b> LRATC flat."
+  ],
+  conceptCheck:[
+    {s:"In the long run, all costs are variable.", a:true,
+     e:"Right — given enough time the firm can adjust every input, so nothing is fixed."},
+    {s:"Economies of scale occur when long-run average total cost RISES as output increases.", a:false,
+     e:"That's <b>diseconomies</b> of scale. Economies of scale = LRATC <b>falls</b> as output rises."}
+  ],
+  write:{
+    title:"Reading the long-run ATC curve",
+    formula:"LRATC falling = economies &nbsp;|&nbsp; flat = constant &nbsp;|&nbsp; rising = <b>diseconomies</b>",
+    rows:[
+      ["Small output (e.g., 1,000 cars/day)","On the falling part → economies of scale (specialization)"],
+      ["Medium output","Flat bottom → constant returns to scale"],
+      ["Very large output","Rising part → diseconomies (management/coordination problems)"],
+      ["Short run vs long run","Long-run ATC ≤ short-run ATC (more flexibility lowers cost)"],
+      ["Fixed costs in long run","None — all inputs adjustable"]
+    ],
+    graph:"longrun",
+    note:"≤5 lines: LR ATC = U/scoop shape. Down = economies, flat = constant, up = diseconomies. Long run has no fixed costs."
+  },
+  distractors:[
+    {t:"Trap: \"Firms have fixed costs in the long run.\"", w:"No — the long run is defined by <b>all inputs being variable</b>, so there are no fixed costs then."},
+    {t:"Trap: swapping economies and diseconomies.", w:"<b>Economies = costs fall</b> as size grows; <b>diseconomies = costs rise</b>. Diseconomies usually come from coordination problems in very large firms."}
+  ],
+  mcq:[
+    {q:"The defining feature of the long run is that:",
+     o:["Prices are fixed","All inputs are variable","Output is constant","There are no workers"],c:1,
+     e:"In the long run the firm can change every input, including plant size."},
+    {q:"Economies of scale exist when long-run ATC:",
+     o:["Rises as output rises","Falls as output rises","Is constant","Equals marginal cost"],c:1,
+     e:"Falling LRATC = economies of scale."},
+    {q:"Diseconomies of scale typically arise from:",
+     o:["Specialization of labour","Coordination problems in large organizations","Bulk discounts","Lower input prices"],c:1,
+     e:"Big firms get harder to manage → rising LRATC."},
+    {q:"Which is true about fixed costs in the long run?",
+     o:["They are higher than in the short run","They equal variable costs","There are none","They equal marginal cost"],c:2,
+     e:"Everything is variable in the long run → no fixed costs."}
+  ],
+  mcqAlt:[
+    {q:"A flat portion of the long-run ATC curve indicates:",
+     o:["Economies of scale","Diseconomies of scale","Constant returns to scale","No production"],c:2,
+     e:"Flat LRATC = constant returns to scale."},
+    {q:"Compared with short-run ATC curves, the long-run ATC curve is generally:",
+     o:["Steeper and higher","Flatter and never above them","Vertical","Irrelevant"],c:1,
+     e:"More flexibility → long-run ATC lies at or below short-run curves and is flatter."},
+    {q:"Rising long-run ATC as a firm grows very large reflects:",
+     o:["Economies of scale","Diseconomies of scale","Constant returns","Diminishing fixed cost"],c:1,
+     e:"Larger size → coordination costs → diseconomies of scale."}
+  ],
+  why:{q:"Why might a firm enjoy economies of scale when small but run into diseconomies of scale once it becomes huge?",
+       r:"When small, growing lets workers <b>specialize</b> and the firm spreads big setup costs over more units → LRATC falls (economies). But when very large, layers of management, communication breakdowns and coordination problems pile up, raising cost per unit → LRATC rises (diseconomies). Between the two lies a flat range of constant returns."},
+  recall:"Sketch the long-run ATC curve and label the three zones (economies, constant, diseconomies). Say one cause of each."
+}
+];
+
+/* ============================================================
+   SQ4R SURVEY ITEMS + FLASHCARDS + FINAL RECALL
+   ============================================================ */
+const SURVEY=[
+  "Ch11: What makes a good excludable vs rival?",
+  "Ch11: What are the four types of goods?",
+  "Ch11: What is the free-rider problem?",
+  "Ch11: How does cost-benefit analysis work?",
+  "Ch11: What is the Tragedy of the Commons?",
+  "Ch13: How is economic profit different from accounting profit?",
+  "Ch13: Why does marginal product diminish?",
+  "Ch13: What are FC, VC, AFC, AVC, ATC, MC?",
+  "Ch13: Where does MC cross ATC, and why?",
+  "Ch13: What are economies vs diseconomies of scale?"
+];
+const FLASHCARDS=[
+  {f:"Excludable vs Rival",b:"Excludable = can block non-payers. Rival = my use leaves less for you. Independent questions."},
+  {f:"Four types of goods",b:"Private (exc+riv), Club (exc, non-riv), Common resource (non-exc, riv), Public (non-exc, non-riv)."},
+  {f:"Free-rider problem",b:"Non-excludable → can't make people pay → private market under-provides public goods."},
+  {f:"Tragedy of the Commons",b:"Rival + non-excludable resource is overused; caused by a negative externality. Fix: regulation, taxes, property rights."},
+  {f:"Economic vs accounting profit",b:"Accounting = TR − explicit. Economic = TR − (explicit + implicit). Economic ≤ accounting."},
+  {f:"Marginal product of labour",b:"MPL = ΔQ/ΔL. Diminishes as a fixed input gets crowded."},
+  {f:"Cost formulas",b:"TC=FC+VC; ATC=TC/Q; AFC=FC/Q; AVC=VC/Q; MC=ΔTC/ΔQ; ATC=AFC+AVC."},
+  {f:"MC & ATC rule",b:"MC crosses ATC at its MINIMUM (efficient scale). MC<ATC→ATC falls; MC>ATC→ATC rises."},
+  {f:"Economies of scale",b:"LRATC falls (economies), flat (constant), rises (diseconomies). No fixed costs in long run."},
+  {f:"SPACED: Elasticity (older)",b:"Elasticity = % change in Q ÷ % change in P. Elastic >1, inelastic <1. Revisit so it doesn't fade!"}
+];
+const FINAL_RECALL=[
+  {q:"Explain the difference between a public good and a common resource, with an example of each.",
+   r:"Both are non-excludable. A <b>public good</b> is also non-rival (national defence, fireworks). A <b>common resource</b> is rival (ocean fish, congested road) → it can be depleted, leading to the Tragedy of the Commons."},
+  {q:"Why does the private market fail to supply public goods well?",
+   r:"They're non-excludable → firms can't make beneficiaries pay → free-rider problem → under-provision. Government can supply them via taxes if total benefits > total costs."},
+  {q:"State the two profit formulas and what zero economic profit means.",
+   r:"Accounting profit = TR − explicit costs. Economic profit = TR − (explicit + implicit). Zero economic profit = the firm earns exactly its opportunity cost (normal profit)."},
+  {q:"Why is marginal cost rising and ATC U-shaped, and where do they meet?",
+   r:"Diminishing marginal product makes each extra unit need more labour → MC rises. ATC falls (AFC dropping) then rises (AVC climbing) → U-shape. MC crosses ATC at its minimum = efficient scale."},
+  {q:"Distinguish economies, constant, and diseconomies of scale.",
+   r:"Along the long-run ATC: falling = economies of scale (specialization), flat = constant returns, rising = diseconomies (coordination problems). No fixed costs exist in the long run."}
+];
+
+/* ============================================================
+   STATE / PERSISTENCE
+   ============================================================ */
+const LS_KEY="ec120_ch11_13_v1";
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){return {}}}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(state))}
+function tState(id){state[id]=state[id]||{gate:false,mastered:false,gateAns:{},usingAlt:false};return state[id]}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const KEYS=["A","B","C","D"];
+function topicUnlocked(idx){
+  if(idx===0) return true;
+  return !!tState(TOPICS[idx-1].id).mastered;
+}
+
+function renderSurvey(){
+  const ul=document.getElementById("survey-list");
+  ul.innerHTML=SURVEY.map((s,i)=>{
+    const ck=state.survey&&state.survey[i]?"checked":"";
+    return `<li><input type="checkbox" data-survey="${i}" ${ck}><span>${s}</span></li>`;
+  }).join("");
+  ul.querySelectorAll("input").forEach(inp=>inp.addEventListener("change",e=>{
+    state.survey=state.survey||{};state.survey[e.target.dataset.survey]=e.target.checked;save();
+  }));
+}
+
+function renderFlashcards(){
+  document.getElementById("flashdeck").innerHTML=FLASHCARDS.map((c,i)=>`
+    <div class="flip" data-flip="${i}">
+      <div class="inner">
+        <div class="face front"><div><span style="font-size:11px;color:var(--muted)">tap to flip</span><br><b>${c.f}</b></div></div>
+        <div class="face back">${c.b}</div>
+      </div>
+    </div>`).join("");
+  document.querySelectorAll(".flip").forEach(f=>f.addEventListener("click",()=>f.classList.toggle("flipped")));
+}
+
+function renderFinalRecall(){
+  document.getElementById("final-recall-list").innerHTML=FINAL_RECALL.map((x,i)=>`
+    <details class="acc"><summary>${i+1}. ${x.q}</summary><div class="inner">${x.r}</div></details>`).join("");
+}
+
+function graphHTML(key){
+  if(key==="production") return `<div class="figure">${gProductionFunction()}<div class="cap">Production function flattens → diminishing marginal product.</div></div>`;
+  if(key==="mcatc") return `<div class="figure">${gMC_ATC()}<div class="cap">MC slices through ATC exactly at its minimum (efficient scale).</div></div>`;
+  if(key==="longrun") return `<div class="figure">${gLongRun()}<div class="cap">Long-run ATC: economies → constant → diseconomies of scale.</div></div>`;
+  return "";
+}
+
+function renderTopics(){
+  const root=document.getElementById("topics");
+  root.innerHTML=TOPICS.map((t,idx)=>{
+    const st=tState(t.id);
+    const unlocked=topicUnlocked(idx);
+    const stateTxt = st.mastered ? `✓ Mastered` : unlocked ? `In progress` : `🔒 Locked`;
+    const lockClass = unlocked? "" : "locked";
+    return `
+    <div class="topic ${lockClass}" id="${t.id}" data-idx="${idx}">
+      <div class="topic-head" data-toggle="${t.id}">
+        <div class="ic">${t.icon}</div>
+        <div class="meta">
+          <div class="chip">${t.chapter} · Topic ${idx+1} of 10</div>
+          <h3>${t.title}</h3>
+        </div>
+        <div class="state ${st.mastered?'done':''}">${stateTxt}</div>
+        <div class="lockico">${st.mastered?'✅':(unlocked?'▾':'🔒')}</div>
+      </div>
+      <div class="topic-body">
+        ${ unlocked ? topicInner(t,idx,st) : `<div class="locked-msg">🔒 Finish the drill in <b>Topic ${idx}</b> (score 3/4) to unlock this topic. This gating mirrors your study plan — master one stage before the next.</div>` }
+      </div>
+    </div>`;
+  }).join("");
+  wireTopics();
+  updateProgress();
+}
+
+function topicInner(t,idx,st){
+  // SQ4R survey questions for this topic
+  const surveyQ = `<div class="recall"><b>👁 SQ4R · Survey → Question:</b> Before reading, turn the headings into questions:<ul>${t.survey.map(q=>`<li>${q}</li>`).join("")}</ul></div>`;
+
+  // Phase 0 anchor
+  const anchor = `<div class="phase read">
+    <div class="phase-label">👁 Phase 0 · Read this — Concept Anchor <span class="est">~2 min · plain English, no math</span></div>
+    <ul>${t.anchor.map(b=>`<li>${b}</li>`).join("")}</ul>
+    ${idx===1?goodsMatrix():""}
+  </div>`;
+
+  // Concept Check gate
+  const gate = `<div class="phase gate" id="gate-${t.id}">
+    <div class="phase-label">🔑 Concept Check Gate <span class="est">~1 min · pass BOTH to unlock the formula</span></div>
+    <p style="color:var(--muted);margin:.2em 0 .6em">Decide True or False. You must get <b>both</b> right to open Phase 1.</p>
+    ${t.conceptCheck.map((c,ci)=>`
+      <div class="tf" data-gate="${t.id}" data-ci="${ci}" data-ans="${c.a}">
+        <div class="q">${ci+1}. ${c.s}</div>
+        <div class="btns">
+          <button class="btn tf-btn" data-pick="true">True</button>
+          <button class="btn tf-btn" data-pick="false">False</button>
+        </div>
+        <div class="fb">${c.e}</div>
+      </div>`).join("")}
+  </div>`;
+
+  // Locked phases (revealed after gate)
+  const gated = st.gate ? "" : "gated-hidden";
+  const writeRows = t.write.rows.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  const write = `<div class="phase write phase-gated ${gated}" data-phasewrap="${t.id}">
+    <div class="phase-label">✏️ Phase 1 · Write this — Formula + Real Numbers <span class="est">~3 min · copy ≤5 lines into your notebook</span></div>
+    <div style="font-weight:700;margin-bottom:6px">${t.write.title}</div>
+    <div class="formula">${t.write.formula}</div>
+    ${t.write.graph?graphHTML(t.write.graph):""}
+    <div class="worked">${writeRows}</div>
+    <div class="notebook">📓 <b>Write this down:</b> ${t.write.note}</div>
+  </div>`;
+
+  const distract = `<div class="phase distract phase-gated ${gated}">
+    <div class="phase-label">👁 Phase 2 · Distractor Breakdown <span class="est">~2 min · the traps the exam loves</span></div>
+    ${t.distractors.map(d=>`<div class="trap"><div class="t">${d.t}</div><div class="w">${d.w}</div></div>`).join("")}
+  </div>`;
+
+  const drill = `<div class="phase drill phase-gated ${gated}" id="drill-${t.id}">
+    <div class="phase-label">🎯 Phase 3 · MCQ Drill <span class="est">~5 min · need 3/4 to unlock next topic</span></div>
+    <div id="drill-body-${t.id}"></div>
+  </div>`;
+
+  const recall = `<div class="recall phase-gated ${gated}"><b>🧠 Active Recall (do with Body-Double Mode on):</b> ${t.recall}</div>`;
+
+  const why = `<div class="phase why phase-gated ${gated}">
+    <div class="phase-label">💡 WHY Question <span class="est">~1 min · conceptual, not calculation</span></div>
+    <div style="font-weight:600;margin-bottom:8px">${t.why.q}</div>
+    <textarea class="why-box" placeholder="Type your reasoning in your own words first..."></textarea>
+    <button class="btn" style="margin-top:8px" data-reveal="${t.id}">Reveal model answer</button>
+    <div class="reveal" id="reveal-${t.id}">${t.why.r}</div>
+  </div>`;
+
+  return surveyQ + anchor + gate + write + distract + drill + recall + why;
+}
+
+/* drill rendering (separate so we can re-render on retry) */
+function renderDrill(t){
+  const st=tState(t.id);
+  const pool = st.usingAlt ? t.mcqAlt : t.mcq;
+  const need = st.usingAlt ? Math.ceil(pool.length*2/3) : 3; // 3/4 main, ~2/3 retry
+  const body=document.getElementById("drill-body-"+t.id);
+  if(!body) return;
+  body.innerHTML = `
+    ${st.usingAlt?`<div class="retry-note show">🔁 Retry round — ${pool.length} fresh questions on the same topic. Get ${need}/${pool.length} to pass.</div>`:""}
+    ${pool.map((m,mi)=>`
+      <div class="mcq" data-mcq="${t.id}" data-mi="${mi}" data-correct="${m.c}">
+        <div class="q">${mi+1}. ${m.q}</div>
+        ${m.o.map((o,oi)=>`<button class="opt" data-oi="${oi}"><span class="k">${KEYS[oi]}</span>${o}</button>`).join("")}
+        <div class="exp">${m.e}</div>
+      </div>`).join("")}
+    <div class="drill-status">
+      <span class="score" id="score-${t.id}">Answered 0/${pool.length}</span>
+      <button class="btn" id="submit-${t.id}" disabled>Submit drill</button>
+    </div>
+    <div class="retry-note" id="result-${t.id}"></div>`;
+  wireDrill(t,pool,need);
+}
+
+/* ============================================================
+   WIRING
+   ============================================================ */
+function wireTopics(){
+  // expand/collapse
+  document.querySelectorAll(".topic-head").forEach(h=>{
+    h.addEventListener("click",()=>{
+      const id=h.dataset.toggle, idx=+document.getElementById(id).dataset.idx;
+      if(!topicUnlocked(idx)){toast("🔒 Locked — pass the previous topic's drill (3/4) first.");return;}
+      document.getElementById(id).classList.toggle("open");
+    });
+  });
+  // gate T/F
+  document.querySelectorAll(".tf").forEach(tf=>{
+    const id=tf.dataset.gate, ci=tf.dataset.ci, ans=tf.dataset.ans==="true";
+    const st=tState(id);
+    // restore
+    if(st.gateAns && st.gateAns[ci]!==undefined){
+      applyTF(tf,st.gateAns[ci],ans);
+    }
+    tf.querySelectorAll(".tf-btn").forEach(b=>b.addEventListener("click",()=>{
+      const pick=b.dataset.pick==="true";
+      st.gateAns=st.gateAns||{}; st.gateAns[ci]=pick; save();
+      applyTF(tf,pick,ans);
+      checkGate(id);
+    }));
+  });
+  // reveal WHY
+  document.querySelectorAll("[data-reveal]").forEach(b=>b.addEventListener("click",()=>{
+    document.getElementById("reveal-"+b.dataset.reveal).classList.add("show");
+  }));
+  // render drills + open-state + check gates
+  TOPICS.forEach((t,idx)=>{
+    const st=tState(t.id);
+    if(topicUnlocked(idx)) renderDrill(t);
+    if(st.gate) revealPhases(t.id);
+    // keep first unlocked-not-mastered topic open by default on first load
+  });
+  // auto-open the current topic
+  const cur=TOPICS.find((t,idx)=>topicUnlocked(idx)&&!tState(t.id).mastered);
+  if(cur){const el=document.getElementById(cur.id); if(el&&!document.querySelector(".topic.open")) el.classList.add("open");}
+}
+
+function applyTF(tf,pick,ans){
+  const btns=tf.querySelectorAll(".tf-btn"); btns.forEach(x=>x.classList.remove("sel-true","sel-false"));
+  const sel=tf.querySelector(`.tf-btn[data-pick="${pick}"]`);
+  const correct = pick===ans;
+  sel.classList.add(correct?"sel-true":"sel-false");
+  const fb=tf.querySelector(".fb");
+  fb.classList.add("show"); fb.classList.toggle("ok",correct); fb.classList.toggle("no",!correct);
+}
+
+function checkGate(id){
+  const t=TOPICS.find(x=>x.id===id); const st=tState(id);
+  const both = t.conceptCheck.every((c,ci)=> st.gateAns && st.gateAns[ci]===c.a);
+  if(both && !st.gate){
+    st.gate=true; save(); revealPhases(id);
+    toast("🔑 Both correct — Phase 1 unlocked!");
+  }
+}
+function revealPhases(id){
+  document.querySelectorAll(`#${id} .phase-gated`).forEach(p=>p.classList.remove("gated-hidden"));
+}
+
+function wireDrill(t,pool,need){
+  const st=tState(t.id);
+  let answers={};
+  const mcqs=document.querySelectorAll(`[data-mcq="${t.id}"]`);
+  const scoreEl=document.getElementById("score-"+t.id);
+  const submitEl=document.getElementById("submit-"+t.id);
+  mcqs.forEach(mcq=>{
+    const mi=mcq.dataset.mi, correct=+mcq.dataset.correct;
+    mcq.querySelectorAll(".opt").forEach(opt=>{
+      opt.addEventListener("click",()=>{
+        if(mcq.dataset.locked) return;
+        mcq.dataset.locked="1";
+        const oi=+opt.dataset.oi;
+        answers[mi]= (oi===correct);
+        mcq.querySelectorAll(".opt").forEach(o=>{o.classList.add("disabled");
+          if(+o.dataset.oi===correct)o.classList.add("correct");});
+        if(oi!==correct) opt.classList.add("wrong");
+        mcq.querySelector(".exp").classList.add("show");
+        scoreEl.textContent=`Answered ${Object.keys(answers).length}/${pool.length}`;
+        if(Object.keys(answers).length===pool.length) submitEl.disabled=false;
+      });
+    });
+  });
+  submitEl.addEventListener("click",()=>{
+    const got=Object.values(answers).filter(Boolean).length;
+    const res=document.getElementById("result-"+t.id);
+    res.classList.add("show");
+    if(got>=need){
+      res.style.borderColor="var(--good)";
+      res.innerHTML=`✅ <b>Passed ${got}/${pool.length}!</b> Topic mastered — the next topic is unlocked. Now do the Active-Recall prompt below out loud.`;
+      st.mastered=true; save();
+      celebrate();
+      renderTopicsPreserveOpen(t.id);
+    }else{
+      res.style.borderColor="var(--bad)";
+      res.innerHTML=`❌ <b>${got}/${pool.length} — not yet.</b> Re-read Phase 0 & the Distractor Breakdown, then try a fresh set of questions.`;
+      st.usingAlt=true; save();
+      setTimeout(()=>renderDrill(t),1200);
+    }
+  });
+}
+
+/* re-render but keep this topic open + mastered ones reflowed */
+function renderTopicsPreserveOpen(openId){
+  const openIds=[...document.querySelectorAll(".topic.open")].map(e=>e.id);
+  renderTopics();
+  openIds.forEach(id=>{const e=document.getElementById(id); if(e)e.classList.add("open");});
+  // also open the newly unlocked next topic
+  const idx=TOPICS.findIndex(t=>t.id===openId);
+  if(idx>=0 && idx+1<TOPICS.length){const nx=document.getElementById(TOPICS[idx+1].id); if(nx)nx.classList.add("open");}
+}
+
+function updateProgress(){
+  const done=TOPICS.filter(t=>tState(t.id).mastered).length;
+  document.getElementById("pbar-fill").style.width=(done/TOPICS.length*100)+"%";
+  document.getElementById("pbar-num").textContent=done;
+  if(done===TOPICS.length) document.getElementById("pbar-num").textContent="ALL 10";
+}
+
+/* ============================================================
+   TOAST / CELEBRATE
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+function celebrate(){
+  const done=TOPICS.filter(t=>tState(t.id).mastered).length;
+  if(done===TOPICS.length){toast("🏆 All 10 topics mastered! Now do the Spaced-Repetition deck in a few days.");}
+}
+
+/* ============================================================
+   TIMER (Body Double)
+   ============================================================ */
+let timer={sec:25*60,run:false,iv:null};
+function fmt(s){const m=Math.floor(s/60),x=s%60;return `${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`;}
+function drawTimer(){document.getElementById("timer").textContent=fmt(timer.sec);}
+function tick(){
+  if(timer.sec<=0){clearInterval(timer.iv);timer.run=false;toast("⏰ Sprint done! Stand up, then keep going or take a 5-min break.");return;}
+  timer.sec--; drawTimer();
+}
+document.getElementById("t-start").addEventListener("click",()=>{
+  if(timer.run)return; timer.run=true; timer.iv=setInterval(tick,1000); toast("🎯 Focus sprint started — narrate your answers aloud.");
+});
+document.getElementById("t-pause").addEventListener("click",()=>{timer.run=false;clearInterval(timer.iv);});
+document.getElementById("t-reset").addEventListener("click",()=>{timer.run=false;clearInterval(timer.iv);timer.sec=25*60;drawTimer();});
+document.getElementById("t-break").addEventListener("click",()=>{timer.run=false;clearInterval(timer.iv);timer.sec=5*60;drawTimer();toast("☕ 5-minute break loaded — press Start.");});
+document.getElementById("bd-toggle").addEventListener("change",e=>{
+  document.body.classList.toggle("bodydouble",e.target.checked);
+  state.bodydouble=e.target.checked; save();
+  if(e.target.checked)toast("👥 Body-Double Mode ON — explain each answer out loud as if teaching.");
+});
+
+/* reset */
+document.getElementById("reset-all").addEventListener("click",()=>{
+  if(confirm("Reset all progress, gates, and drills on this device?")){
+    localStorage.removeItem(LS_KEY); state={}; renderAll(); toast("↺ Progress reset.");
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function renderAll(){
+  renderSurvey(); renderTopics(); renderFlashcards(); renderFinalRecall();
+  drawTimer();
+  document.getElementById("bd-toggle").checked=!!state.bodydouble;
+  document.body.classList.toggle("bodydouble",!!state.bodydouble);
+}
+// small CSS helper for gated hidden
+const style=document.createElement("style");
+style.textContent=".gated-hidden{display:none!important}";
+document.head.appendChild(style);
+renderAll();
+</script>
+</body>
+</html>

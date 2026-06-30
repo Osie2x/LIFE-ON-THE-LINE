@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EC120 Chapter 14 Interactive Quiz Prep</title>
+<style>
+  :root{
+    --bg:#0d1024;--panel:#151a36;--card:#1d244a;--card2:#252f61;--line:#33407b;
+    --ink:#f3f5ff;--muted:#a9b4df;--brand:#8ea0ff;--blue:#51c7ff;--good:#44dc9d;
+    --bad:#ff6b8a;--warn:#ffd166;--orange:#ffb454;--purple:#c18cff;--shadow:0 18px 50px rgba(0,0,0,.45);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;color:var(--ink);font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;line-height:1.55;
+    background:
+      radial-gradient(900px 500px at 15% -5%,rgba(81,199,255,.22),transparent 58%),
+      radial-gradient(800px 500px at 95% 0%,rgba(193,140,255,.22),transparent 55%),
+      var(--bg);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 130px}
+  .hero{
+    border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:28px;box-shadow:var(--shadow);
+    background:linear-gradient(135deg,#253b8f,#55349a 58%,#7c2d79);position:relative;overflow:hidden;
+  }
+  .hero:after{content:"";position:absolute;inset:-80px -80px auto auto;width:420px;height:260px;border-radius:50%;background:rgba(255,255,255,.16);filter:blur(8px)}
+  .badge{display:inline-block;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.2);font-size:12px;font-weight:800;letter-spacing:.35px}
+  h1{margin:10px 0 6px;font-size:clamp(28px,4vw,46px);line-height:1.05}
+  .sub{max-width:850px;color:#eef1ff;opacity:.95;margin:0;font-size:15.5px}
+  .hero-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .pill{border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.23);padding:8px 12px;border-radius:13px;font-size:13px}
+  .sticky{
+    position:sticky;top:0;z-index:60;margin:16px -6px 18px;padding:10px 12px;border:1px solid var(--line);border-top:none;
+    background:rgba(13,16,36,.9);backdrop-filter:blur(10px);border-radius:0 0 18px 18px;
+  }
+  .bar{height:13px;background:#090c1d;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--blue),var(--good));transition:.4s}
+  .bar-text{display:flex;justify-content:space-between;gap:12px;margin-top:7px;color:var(--muted);font-size:12.5px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  button,.file-label{
+    cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:11px;padding:9px 13px;font-weight:750;font-size:13.5px;transition:.13s;
+  }
+  button:hover,.file-label:hover{transform:translateY(-1px);border-color:var(--brand)}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .ghost{background:transparent;color:var(--muted)}
+  .danger:hover{border-color:var(--bad);color:var(--bad)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .block{background:rgba(21,26,54,.96);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin:18px 0;box-shadow:var(--shadow)}
+  .block h2{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:22px}
+  .lead{color:var(--muted);margin:.25em 0 1em}
+  .num{display:grid;place-items:center;min-width:30px;height:30px;border-radius:10px;background:var(--brand);color:#09102b;font-weight:900}
+  .plan-card,.method-card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px}
+  .plan-card b,.method-card b{color:white}
+  .plan-card .tag,.method-card .tag{display:inline-block;margin-bottom:7px;padding:3px 8px;border-radius:8px;background:#0b1029;color:var(--blue);font-size:11px;font-weight:900;letter-spacing:.3px}
+  .day-min{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,209,102,.14),rgba(255,180,84,.08))}
+  .stage-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .stage-card{padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);cursor:pointer;position:relative;min-height:84px}
+  .stage-card:hover{border-color:var(--brand)}
+  .stage-card.locked{opacity:.45;cursor:not-allowed}
+  .stage-card.done{border-color:rgba(68,220,157,.65);background:rgba(68,220,157,.09)}
+  .stage-card.active{outline:2px solid var(--brand)}
+  .stage-card small{display:block;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.35px;font-weight:900}
+  .stage-card h3{font-size:14.2px;margin:4px 0 0}
+  .stage-card .status{position:absolute;right:10px;bottom:8px;font-size:12px;color:var(--muted)}
+  .module{display:none}
+  .module.active{display:block}
+  .module-head{display:flex;gap:15px;align-items:center;margin-bottom:14px}
+  .big-ico{width:54px;height:54px;border:1px solid var(--line);border-radius:15px;background:var(--card2);display:grid;place-items:center;font-size:26px;flex:none}
+  .module h2{margin:.05em 0;font-size:25px}
+  .micro{color:var(--muted);font-size:13px}
+  .phase{border:1px solid var(--line);border-radius:15px;padding:16px;margin:14px 0;background:var(--card)}
+  .phase.read{background:rgba(81,199,255,.07);border-color:rgba(81,199,255,.38)}
+  .phase.gate{background:rgba(142,160,255,.08);border-color:rgba(142,160,255,.45)}
+  .phase.write{background:rgba(255,180,84,.08);border-color:rgba(255,180,84,.45)}
+  .phase.traps{background:rgba(255,107,138,.08);border-color:rgba(255,107,138,.45)}
+  .phase.drill{background:rgba(68,220,157,.07);border-color:rgba(68,220,157,.38)}
+  .phase.why{background:rgba(255,209,102,.08);border-color:rgba(255,209,102,.45)}
+  .label{font-weight:900;text-transform:uppercase;letter-spacing:.32px;font-size:13px;margin-bottom:8px}
+  .read .label{color:var(--blue)}.gate .label{color:var(--brand)}.write .label{color:var(--orange)}
+  .traps .label{color:var(--bad)}.drill .label{color:var(--good)}.why .label{color:var(--warn)}
+  .phase ul{margin:.4em 0 .1em;padding-left:21px}.phase li{margin:.35em 0}
+  .locked-box{padding:16px;border:1px dashed var(--line);border-radius:13px;color:var(--muted);text-align:center;background:rgba(0,0,0,.2)}
+  .tf,.mcq{background:#111633;border:1px solid var(--line);border-radius:13px;padding:13px;margin:10px 0}
+  .q{font-weight:750;margin-bottom:9px}
+  .fb,.exp,.model{display:none;margin-top:9px;padding:10px;border-radius:10px;background:rgba(0,0,0,.25);font-size:13.5px}
+  .show{display:block!important}
+  .ok{border:1px solid var(--good);background:rgba(68,220,157,.12)}.no{border:1px solid var(--bad);background:rgba(255,107,138,.12)}
+  .tf-row{display:flex;gap:8px;flex-wrap:wrap}
+  .picked-good{background:var(--good);color:#062116;border-color:var(--good)}.picked-bad{background:var(--bad);color:#330612;border-color:var(--bad)}
+  .formula{font-family:Georgia,"Cambria Math",serif;text-align:center;background:#0b1029;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:18px;margin:10px 0}
+  .formula b{color:var(--orange)}
+  .worked{background:#111633;border:1px solid var(--line);border-radius:13px;margin:10px 0;overflow:hidden}
+  .row{display:grid;grid-template-columns:1fr 1.35fr;gap:10px;padding:10px 12px;border-bottom:1px dashed var(--line);font-size:14px}
+  .row:last-child{border-bottom:none}.row b{color:var(--good)}
+  .write-note{border-left:4px solid var(--orange);background:rgba(255,180,84,.1);padding:11px 13px;border-radius:9px;font-size:13.5px}
+  .trap{border:1px solid rgba(255,107,138,.42);background:#111633;border-radius:12px;padding:11px 13px;margin:9px 0}
+  .trap b{color:var(--bad)}
+  .opt{display:block;width:100%;text-align:left;margin:7px 0;border-radius:10px;background:var(--card2)}
+  .opt .k{display:inline-grid;place-items:center;width:23px;height:23px;margin-right:9px;border-radius:7px;background:#0b1029;font-size:12px}
+  .opt.correct{border-color:var(--good);background:rgba(68,220,157,.17)}
+  .opt.wrong{border-color:var(--bad);background:rgba(255,107,138,.15)}
+  textarea,input[type=text]{width:100%;background:#0b1029;color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px;font:inherit}
+  .module-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .recall{border:1px dashed var(--brand);background:rgba(142,160,255,.08);border-radius:13px;padding:13px;margin:12px 0}
+  .recall b{color:var(--brand)}
+  .graphbox{background:#0b1029;border:1px solid var(--line);border-radius:15px;padding:14px;text-align:center;margin:12px 0;overflow:hidden}
+  svg{max-width:100%;height:auto}
+  .caption{color:var(--muted);font-size:12.5px;margin-top:4px}
+  .animated-line{animation:pulseLine 2.2s ease-in-out infinite}.sweep{animation:sweep 3.5s ease-in-out infinite}
+  @keyframes pulseLine{0%,100%{opacity:1;stroke-width:3}50%{opacity:.55;stroke-width:5}}
+  @keyframes sweep{0%,100%{transform:translateX(0)}50%{transform:translateX(28px)}}
+  .lab-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:14px}
+  @media(max-width:760px){.lab-grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.module-head{align-items:flex-start}}
+  .metric{background:#111633;border:1px solid var(--line);border-radius:12px;padding:11px;margin:8px 0}
+  .metric b{color:var(--good)}
+  .range{width:100%;accent-color:var(--brand)}
+  .timer{font-size:39px;font-weight:950;text-align:center;letter-spacing:2px;margin:8px 0;font-variant-numeric:tabular-nums}
+  .bodydouble .wrap:before{
+    content:"Body-Double Mode ON: narrate every definition, coordinate, and rule out loud before clicking.";
+    display:block;margin-bottom:12px;padding:9px;border-radius:13px;background:linear-gradient(90deg,var(--brand),var(--blue));color:#06102c;font-weight:900;text-align:center;font-size:13.5px;
+  }
+  .toggle{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:13px;margin-top:8px}
+  .toggle input{width:19px;height:19px;accent-color:var(--brand)}
+  .vault-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .quiz-card{background:#111633;border:1px solid var(--line);border-radius:13px;padding:13px;margin:11px 0}
+  .score-card{border:1px solid var(--warn);background:rgba(255,209,102,.11);border-radius:13px;padding:13px;margin-top:12px}
+  .flashdeck{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .flip{height:142px;perspective:1000px;cursor:pointer}.flip-inner{position:relative;height:100%;transition:transform .45s;transform-style:preserve-3d}
+  .flip.on .flip-inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:14px;border:1px solid var(--line);border-radius:15px;backface-visibility:hidden}
+  .front{background:var(--card2)}.back{background:linear-gradient(135deg,#243060,#253b8f);transform:rotateY(180deg);font-size:13.5px}
+  .toast{position:fixed;left:50%;bottom:26px;z-index:200;transform:translateX(-50%) translateY(120px);background:var(--good);color:#052418;font-weight:900;padding:13px 18px;border-radius:14px;box-shadow:var(--shadow);transition:.35s;max-width:92vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .hide{display:none!important}
+  .foot{color:var(--muted);text-align:center;font-size:12.5px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">EC120-VA4 · Chapter 14 · Friday Quiz Prep</span>
+    <h1>Firms in Competitive Markets — Interactive Mastery HTML</h1>
+    <p class="sub">Built for your learning system: speech-shaped definitions, exact vocabulary anchors, coordinate mapping, flipped-rule drilling, active recall, body doubling, spaced repetition, and a large MC question bank for the 21-question quiz.</p>
+    <div class="hero-row">
+      <span class="pill">12 clickable stages</span><span class="pill">Day Minimum checkpoint</span><span class="pill">Animated graph trainer</span><span class="pill">21-question mock quiz</span><span class="pill">Explicit save/export</span>
+    </div>
+  </header>
+
+  <div class="sticky">
+    <div class="bar"><i id="bar"></i></div>
+    <div class="bar-text"><span><b id="doneNum">0</b>/12 stages mastered</span><span id="saveState">Not saved yet</span></div>
+    <div class="toolbar">
+      <button id="saveBtn">Save progress now</button>
+      <button id="exportBtn">Export save file</button>
+      <label class="file-label">Import save <input id="importFile" type="file" accept="application/json" hidden></label>
+      <button id="openVault">Open quiz vault</button>
+      <button class="ghost danger" id="resetBtn">Reset this HTML</button>
+    </div>
+  </div>
+
+  <section class="block">
+    <h2><span class="num">1</span>Study roadmap for Tuesday → Thursday readiness</h2>
+    <p class="lead">This chapter has a Friday quiz, so the HTML is bigger than the Ch 11/13 baseline tool. The goal is not just "understand": it is <b>recognize traps fast under multiple-choice pressure</b>.</p>
+    <div class="grid">
+      <div class="plan-card">
+        <span class="tag">TODAY'S CORE</span>
+        <b>Stage 1 target: finish Stages 1-6.</b>
+        <p>That covers price takers, P=MR=AR, MR=MC, graph coordinate extraction, profit/loss rectangles, and the shutdown rule. If you stop there today, you are not behind.</p>
+      </div>
+      <div class="plan-card day-min">
+        <span class="tag">DAY MINIMUM CHECKPOINT</span>
+        <b>Day Minimum = Stage 6 mastered.</b>
+        <p>Visible marker below. This is the minimum floor for Tuesday. Anything after that is extra strengthening for Thursday readiness.</p>
+      </div>
+      <div class="plan-card">
+        <span class="tag">THURSDAY READY</span>
+        <b>Finish all 12 stages + one 21-question mock quiz.</b>
+        <p>For a quiz like 21 MC questions, the final readiness signal is not rereading; it is scoring 16+/21 while explaining why the wrong answers are wrong.</p>
+      </div>
+      <div class="plan-card">
+        <span class="tag">EXTRA IF YOU CAN</span>
+        <b>Do the quiz vault by category.</b>
+        <p>Prior error pattern says your biggest gains come from marginal reasoning, graph coordinates, flipped rules, and not leaving blanks.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="num">2</span>Your Chapter 14 anti-trap framework</h2>
+    <div class="grid">
+      <div class="method-card"><span class="tag">VOCABULARY ANCHOR</span><b>Price taker; P = MR = AR.</b><p>Lock the first words: "A competitive firm takes the market price as given." If a question says "additional revenue from the next unit," hear <b>MR</b>, and for this chapter MR equals price.</p></div>
+      <div class="method-card"><span class="tag">MARGINAL REASONING</span><b>Quantity comes from MR = MC.</b><p>Do not choose Q by total cost or ATC. First find the margin: if MR &gt; MC, make one more; if MR &lt; MC, back up.</p></div>
+      <div class="method-card"><span class="tag">COORDINATE MAPPING</span><b>Intersection → Q-axis → P/ATC-axis.</b><p>Profit box = (P - ATC) × Q. You must extract all three numbers from the exact same quantity.</p></div>
+      <div class="method-card"><span class="tag">BOTH-WAYS RULES</span><b>Shutdown vs stay; exit vs enter.</b><p>Short run: shut if P &lt; AVC, stay if P ≥ AVC. Long run: exit if P &lt; ATC, enter if P &gt; ATC.</p></div>
+      <div class="method-card"><span class="tag">DIRECTION CHECK</span><b>Market price rises → firm supplies more.</b><p>A competitive firm follows the price line. Higher P means the horizontal MR line moves up and intersects MC at a larger Q.</p></div>
+      <div class="method-card"><span class="tag">NO BLANKS</span><b>Eliminate one, then guess.</b><p>If a graph freezes you: find MR=MC first. If still stuck, remove one impossible choice and guess. Blank answers are guaranteed zero.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="num">3</span>Body-double sprint timer + SQ4R survey</h2>
+    <div class="grid">
+      <div class="method-card">
+        <span class="tag">FOCUS CALL MODE</span>
+        <div class="timer" id="timer">25:00</div>
+        <div class="toolbar"><button id="tStart">Start</button><button id="tPause">Pause</button><button id="tReset">Reset</button><button id="tBreak">5-min break</button></div>
+        <label class="toggle"><input type="checkbox" id="bd"> Body-Double Mode: explain each answer aloud as if a classmate is listening.</label>
+      </div>
+      <div class="method-card">
+        <span class="tag">SQ4R SURVEY</span>
+        <p class="lead">Before starting, turn these headings into questions. Check off when you can answer from memory.</p>
+        <div id="surveyList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="num">4</span>Click through the stages</h2>
+    <p class="lead">Stages unlock in order. Each stage uses your loop: read anchor → 2 T/F gate → write formula with numbers → distractor breakdown → 4 MCQ drill (need 3/4) → WHY question.</p>
+    <div id="stageNav" class="stage-nav"></div>
+  </section>
+
+  <main id="modules"></main>
+
+  <section class="block" id="vault">
+    <h2><span class="num">🎯</span>Quiz Vault — extra MC practice for Friday</h2>
+    <p class="lead">Unlocked after Stage 6 (Day Minimum). These are original quiz-style questions based on your course notes, textbook chapter themes, and public practice-topic scans. Use this like the 21-question quiz: answer every question, no blanks.</p>
+    <div id="vaultLock" class="locked-box">Finish Stage 6 to unlock the quiz vault.</div>
+    <div id="vaultBody" class="hide">
+      <div class="vault-controls">
+        <button data-quiz="vocab">8Q Vocab traps</button>
+        <button data-quiz="margin">8Q MR=MC / tables</button>
+        <button data-quiz="graph">8Q Graph coordinates</button>
+        <button data-quiz="shutdown">8Q Shutdown / exit</button>
+        <button data-quiz="market">8Q Market supply & entry/exit</button>
+        <button data-quiz="mixed">21Q Mock Quiz</button>
+      </div>
+      <div id="quizArea"></div>
+      <div id="quizHistory"></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="num">🔁</span>Spaced repetition flashcards</h2>
+    <p class="lead">Flip these after finishing a sprint, then again tomorrow and Thursday. Say the first 1-3 words first; that is your retrieval ignition key.</p>
+    <div id="flashdeck" class="flashdeck"></div>
+  </section>
+
+  <p class="foot">Self-study aid for EC120 Chapter 14. Built from uploaded course notes and original practice questions. Open locally in a browser; save state stays in this device's localStorage unless exported.</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="ec120_ch14_competitive_firms_v1";
+const letters=["A","B","C","D"];
+let state=loadState();
+function loadState(){try{return JSON.parse(localStorage.getItem(KEY))||{stages:{},survey:{},quizHistory:[]}}catch(e){return{stages:{},survey:{},quizHistory:[]}}}
+function saveState(){state.savedAt=new Date().toLocaleString();localStorage.setItem(KEY,JSON.stringify(state));document.getElementById("saveState").textContent="Saved: "+state.savedAt}
+function st(id){state.stages[id]=state.stages[id]||{gate:false,gateAns:{},mastered:false,alt:false};return state.stages[id]}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),2600)}
+function shuffle(a){return a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+
+const SURVEY=[
+ "What makes a market perfectly competitive?",
+ "Why does a competitive firm treat price as given?",
+ "Why are price, average revenue, and marginal revenue equal?",
+ "How do I choose output using MR and MC?",
+ "How do I read profit/loss from a graph without eyeballing?",
+ "What is the shutdown rule and why is AVC the threshold?",
+ "How is exit different from shutdown?",
+ "Which part of MC is the short-run supply curve?",
+ "Why is long-run equilibrium zero economic profit?",
+ "How does demand change in the short run vs long run?"
+];
+
+const MODULES=[
+{id:"s1",ico:"🏁",title:"Perfect competition and price takers",min:false,
+ aim:"Vocabulary precision: competitive market, identical products, free entry/exit, price taker.",
+ anchor:[
+  "A competitive market has many buyers and many sellers, so no single buyer or seller can control price.",
+  "The product is basically identical across sellers. In your notes the anchor example is maple syrup.",
+  "A competitive firm is a price taker: it accepts the market price as given and decides only how much to sell.",
+  "Free entry and exit matters later because profit attracts new firms and losses push firms out."
+ ],
+ check:[["A price taker can raise price slightly without losing buyers.",false,"No. If one maple syrup seller raises price, buyers can switch to many identical sellers."],["Free entry and exit is part of the competitive-market setup.",true,"Yes. It is what drives long-run zero economic profit."]],
+ formula:"Competitive firm = many sellers + identical goods + free entry/exit → <b>price taker</b>",
+ rows:[["Maple syrup seller's price","$5 set by the market"],["Seller's decision","not 'what price?' but 'how many units?'"],["If it charges $5.50","buyers go elsewhere"],["If it charges $5.00","can sell as much as it wants at market price, within its capacity"]],
+ note:"Say it as one sentence: 'A competitive firm takes the market price as given, so it chooses quantity, not price.'",
+ traps:[["Vocabulary disguise","A question may say 'unable to influence market price' instead of price taker."],["Monopoly thinking","Do not think the firm lowers price to sell more. In perfect competition the individual firm's demand curve is horizontal at P."]],
+ graph:"marketFirm",
+ recall:"Close the screen and say the three criteria for perfect competition in one spoken chain: many buyers/sellers → identical product → free entry/exit.",
+ why:["Why does the firm face a horizontal demand curve even though the market demand curve slopes downward?","The whole market demand slopes down, but one tiny competitive firm is too small to affect the market price. For that one firm, price is fixed, so it can sell each extra unit at the same market price."],
+ mcq:[
+  q("Which phrase best defines a price taker?",["A firm that sets price above competitors","A firm that accepts the market price as given","A firm that produces no output","A firm with barriers to entry"],1,"Price taker = accepts the market price as given."),
+  q("Which is NOT a criterion of perfect competition?",["Many buyers and sellers","Identical products","Free entry and exit","One seller controls price"],3,"One seller controlling price is monopoly power, not perfect competition."),
+  q("For the individual competitive firm, the demand curve it faces is:",["Horizontal at market price","Vertical at market quantity","Downward sloping like market demand","Upward sloping"],0,"The firm can sell at the market price; its individual demand/MR line is horizontal."),
+  q("The maple syrup example works for perfect competition mainly because:",["Each seller's syrup is treated as identical","One seller controls all syrup","There are high barriers to entry","Price is chosen by each firm"],0,"Identical/homogeneous product is a key criterion.")
+ ],
+ alt:[q("A stock-market trader is close to a price taker because:",["They are huge relative to the market","Their individual trade has little effect on market price","They produce a unique good","They face no cost"],1,"Small relative to market → takes price."),q("If a perfectly competitive seller charges above the market price, it likely sells:",["More output","Zero or nearly zero output","The same quantity","Only to the government"],1,"Buyers switch to identical sellers."),q("Free entry means:",["Firms can enter without legal/economic barriers","Firms pay no costs","Prices never change","Firms cannot exit"],0,"Free entry = no barriers.")]
+},
+{id:"s2",ico:"🧾",title:"Revenue: TR, AR, MR, and the P = MR = AR anchor",min:false,
+ aim:"Vocabulary disguises: average revenue, marginal revenue, price.",
+ anchor:[
+  "Total revenue is the value of sales: price times quantity.",
+  "Average revenue means revenue per unit sold. In competition, AR equals price.",
+  "Marginal revenue means additional revenue from one more unit sold. In competition, MR equals price.",
+  "This chapter's ignition phrase is: for a competitive firm, <b>P = MR = AR</b>."
+ ],
+ check:[["Marginal revenue is the change in total revenue from selling one more unit.",true,"Yes. If the next unit adds $5 to total revenue, MR is $5."],["In perfect competition, average revenue is usually greater than price.",false,"No. AR = TR/Q = (P×Q)/Q = P."]],
+ formula:"TR = P × Q &nbsp; | &nbsp; AR = TR/Q = <b>P</b> &nbsp; | &nbsp; MR = ΔTR/ΔQ = <b>P</b>",
+ rows:[["Price of maple syrup","$5"],["If Q = 8","TR = $5 × 8 = $40"],["Average revenue at Q = 8","AR = $40/8 = $5"],["MR from Q=8 to Q=9","TR rises $40 → $45, so MR = $5"]],
+ note:"Write the anchor three times: P = MR = AR. Then define each in words: price per unit, additional revenue, average revenue.",
+ traps:[["Disguised MR","'Additional revenue from the next unit' = marginal revenue = price in competition."],["Average vs marginal flip","AR divides total by Q. MR looks at the change when Q rises by 1. In perfect competition both equal $5, but definitions differ."]],
+ graph:"revenue",
+ recall:"Rebuild the table for Q=0 to 5 when P=$5: TR is 0,5,10,15,20,25; AR=$5; MR=$5.",
+ why:["Why are AR and MR both equal to price for a competitive firm?","Because each unit sells for the same market price. Average revenue is revenue per unit, so it equals price. Marginal revenue is the extra revenue from one more unit, and that unit also sells for the same price."],
+ mcq:[
+  q("If P=$5 and Q=10, total revenue is:",["$5","$10","$50","$2"],2,"TR=P×Q=5×10=$50."),
+  q("For a competitive firm, marginal revenue equals:",["Total cost","Price","Average total cost","Fixed cost"],1,"P=MR=AR."),
+  q("'The revenue per unit sold' defines:",["Average revenue","Marginal cost","Variable cost","Economic profit"],0,"AR=TR/Q."),
+  q("If total revenue rises from $35 to $40 when output rises by one unit, MR equals:",["$35","$40","$5","$75"],2,"MR=ΔTR=$5.")
+ ],
+ alt:[q("When price is constant at $5, the TR curve is:",["Flat","Upward sloping at $5 per unit","U-shaped","Vertical"],1,"Each extra unit adds $5."),q("AR at Q=6 if TR=$30 is:",["$5","$6","$30","$180"],0,"30/6=5."),q("In a competitive firm table, if price is $5 for every Q, MR is:",["Falling","Rising","Constant at $5","Zero"],2,"Every extra unit adds $5.")]
+},
+{id:"s3",ico:"⚖️",title:"Profit maximization: the MR = MC decision",min:false,
+ aim:"Marginal reasoning: choose quantity by the next unit, not sunk/total/average thinking.",
+ anchor:[
+  "The firm's goal is to maximize profit: TR - TC.",
+  "The fast decision rule uses marginal reasoning: compare the next unit's MR with its MC.",
+  "If MR > MC, making the next unit adds profit, so increase output.",
+  "If MR < MC, making the next unit lowers profit, so decrease output.",
+  "Profit is maximized at the quantity where MR and MC are equal, or just before MC jumps above MR in a table."
+ ],
+ check:[["A competitive firm should choose output where total cost is smallest.",false,"No. Q=0 often has lowest TC, but it may not maximize profit. Use MR vs MC."],["If MR is greater than MC for the next unit, producing that unit increases profit.",true,"Yes. Extra revenue exceeds extra cost."]],
+ formula:"Produce where <b>MR = MC</b> &nbsp; | &nbsp; If MR &gt; MC: Q↑ &nbsp; | &nbsp; If MR &lt; MC: Q↓",
+ rows:[["Market price and MR","$5"],["At Q=7, TC rises 24.10 → 29.00","MC = $4.90, so MR > MC by $0.10"],["At Q=8, TC rises 29.00 → 36.00","MC = $7.00, so MR < MC"],["Best Q","7 units: last profitable unit before MC exceeds MR"]],
+ note:"Your anti-Carol's-car rule: ignore sunk/total feelings and ask, 'Does the next unit add more revenue than cost?'",
+ traps:[["Total cost trap","Do not pick Q with lowest TC. Pick Q with highest profit / MR=MC."],["ATC trap","ATC helps calculate profit or loss after Q is chosen. It does not choose Q."],["Exact equality trap","In a table, MR may not exactly equal MC; choose the last unit where MR ≥ MC."]],
+ graph:"mrmc",
+ recall:"From memory: MR=$5. MC for units 7 and 8 are $4.90 and $7.00. Explain why Q=7 beats Q=8.",
+ why:["Why is MR=MC the profit-maximizing rule instead of TR=TC?","TR=TC only means break-even. Profit maximization is about whether the next unit adds to profit. If MR exceeds MC, one more unit helps; if MC exceeds MR, one more unit hurts. The switch point is the maximum."],
+ mcq:[
+  q("If MR=$5 and MC=$3 for the next unit, the firm should:",["Increase output","Decrease output","Shut down automatically","Exit the market automatically"],0,"MR>MC means the next unit adds profit."),
+  q("If MR=$5 and MC=$7 for the next unit, the firm should:",["Increase output","Decrease output","Ignore MC","Raise price"],1,"MC>MR means the next unit lowers profit."),
+  q("In the maple syrup table, MC from Q=7 to Q=8 is $7 while MR is $5. Therefore Q=8 is:",["Too high","Too low","Perfect because TR rises","Shutdown point"],0,"The 8th unit costs more than it adds."),
+  q("The profit-maximizing quantity is chosen primarily by comparing:",["TR and FC","MR and MC","ATC and AFC","Price and income"],1,"Marginal reasoning: MR vs MC.")
+ ],
+ alt:[q("If profit rises from $5.90 at Q=6 to $6.00 at Q=7, then falls to $4.00 at Q=8, the best Q is:",["6","7","8","10"],1,"Highest profit is at Q=7."),q("When MC first rises above MR, the firm should usually:",["Produce that high-MC unit","Back up to the previous unit","Set price higher","Ignore variable cost"],1,"Last unit with MR≥MC."),q("MR=MC is about:",["The next unit","Only fixed costs","Only total costs","The long-run supply curve"],0,"Marginal = next unit.")]
+},
+{id:"s4",ico:"📍",title:"Graph coordinate mapping: Q, P, ATC, and the profit box",min:false,
+ aim:"Precise graph extraction: intersection → Q-axis → vertical values → rectangle.",
+ anchor:[
+  "Graph questions are where you tend to lose points by eyeballing.",
+  "Use the 3-step coordinate discipline: 1) find MR=MC, 2) drop to the Q-axis, 3) read P and ATC at that exact Q.",
+  "Profit or loss is a rectangle, not a vague region: (P - ATC) × Q.",
+  "If P is above ATC at that Q, profit. If P is below ATC, loss. If equal, break-even."
+ ],
+ check:[["Profit uses ATC measured at the profit-maximizing quantity, not just the lowest ATC point.",true,"Yes. First find Q from MR=MC, then read ATC at that Q."],["The formula for graph profit is (P - AVC) × Q.",false,"No. Profit uses ATC: (P - ATC)×Q. AVC is for shutdown decisions."]],
+ formula:"Graph profit = <b>(P - ATC) × Q</b>",
+ rows:[["Find MR=MC","Q = 80 units"],["Read price line","P = $10"],["Read ATC at Q=80","ATC = $7"],["Profit rectangle","($10 - $7) × 80 = $240"]],
+ note:"Write the coordinate chain: intersection → Q=80 → P=10 → ATC=7 → rectangle=(10-7)×80.",
+ traps:[["Wrong vertical curve","Use ATC for profit. Use AVC for shutdown. Use MC for quantity."],["Axis-reading trap","Don't read ATC at the minimum unless the chosen Q is actually there."],["Rectangle sign trap","If P<ATC, the same formula gives a negative number = loss."]],
+ graph:"profitLab",
+ recall:"Draw MC, ATC, a horizontal price/MR line, and a profit rectangle. Label Q*, P, ATC(Q*), and (P-ATC)×Q.",
+ why:["Why do you find Q from MR=MC before reading ATC?","Because quantity is a marginal decision. ATC only tells whether the chosen quantity earns profit, loss, or break-even. If you start from ATC, you may choose the efficient scale instead of the profit-maximizing output."],
+ mcq:[
+  q("On a firm graph, the profit-maximizing quantity is found where:",["P intersects ATC","MR intersects MC","ATC is highest","AVC equals AFC"],1,"Q comes from MR=MC."),
+  q("If P=$10, ATC=$7, and Q=80, profit is:",["$80","$240","$560","$800"],1,"(10-7)×80=$240."),
+  q("If P=$6, ATC=$8, and Q=50, the firm has:",["$100 profit","$100 loss","$300 profit","Break-even"],1,"(6-8)×50=-$100."),
+  q("For profit/loss rectangles, ATC must be read:",["At Q=0","At the profit-maximizing Q","At the lowest price","At the market quantity only"],1,"Always at Q*.")
+ ],
+ alt:[q("If P equals ATC at Q*, economic profit is:",["Positive","Negative","Zero","Impossible"],2,"P=ATC → break-even."),q("The vertical height of the profit rectangle is:",["Q","P-ATC","MC-MR","TR-TC"],1,"Height is per-unit profit."),q("A common graph mistake is:",["Finding MR=MC first","Reading ATC at Q*","Using ATC from the wrong quantity","Multiplying height by Q"],2,"Exact coordinate mapping matters.")]
+},
+{id:"s5",ico:"📦",title:"Three short-run profit outcomes: profit, loss, break-even",min:false,
+ aim:"Separate how much to produce from whether the firm earns profit.",
+ anchor:[
+  "At the profit-maximizing output, compare P and ATC.",
+  "If P > ATC, the firm earns positive economic profit.",
+  "If P = ATC, the firm breaks even: zero economic profit.",
+  "If P < ATC, the firm has an economic loss.",
+  "Do not confuse the Q decision (MR=MC) with the profit outcome (P vs ATC)."
+ ],
+ check:[["A firm can produce the profit-maximizing quantity and still earn a loss.",true,"Yes. MR=MC chooses the best Q, but P may still be below ATC."],["Break-even means price equals AVC.",false,"Break-even is P=ATC. P=AVC is the shutdown threshold."]],
+ formula:"Outcome at Q*: &nbsp; <b>P &gt; ATC</b> profit | <b>P = ATC</b> break-even | <b>P &lt; ATC</b> loss",
+ rows:[["Case A","P=$12, ATC=$9, Q=100 → profit = $300"],["Case B","P=$8, ATC=$8, Q=100 → profit = $0"],["Case C","P=$6, ATC=$9, Q=100 → profit = -$300"],["Same Q rule","All cases still choose Q where MR=MC first"]],
+ note:"Write the pair: Q comes from MR=MC. Outcome comes from P vs ATC.",
+ traps:[["Break-even vs shutdown","Break-even uses ATC. Shutdown uses AVC."],["Loss means close?","Not automatically. In the short run, a loss-making firm may stay open if P ≥ AVC."],["Accounting/economic profit","Zero economic profit can still mean positive accounting profit because total cost includes opportunity cost."]],
+ graph:"outcomes",
+ recall:"Say the three outcomes twice: P>ATC profit; P=ATC zero economic profit; P<ATC economic loss.",
+ why:["Why can a firm with economic losses still keep producing in the short run?","Because fixed costs are sunk in the short run. If price covers average variable cost, producing contributes something toward fixed costs, making the loss smaller than shutting down."],
+ mcq:[
+  q("At Q*, if P is greater than ATC, the firm earns:",["Economic profit","Economic loss","Shutdown point","Zero output"],0,"P>ATC → positive economic profit."),
+  q("At Q*, if P equals ATC, the firm earns:",["Positive economic profit","Zero economic profit","A shutdown loss","Negative revenue"],1,"P=ATC → break-even."),
+  q("At Q*, if P is below ATC, the firm has:",["Economic loss","Guaranteed shutdown","Positive profit","No fixed costs"],0,"P<ATC → loss, but shutdown depends on AVC."),
+  q("The formula Profit=(P-ATC)×Q comes from:",["TR-TC","MR-MC","AVC-AFC","Supply-demand equilibrium"],0,"TR=P×Q and TC=ATC×Q.")
+ ],
+ alt:[q("Break-even in Chapter 14 means:",["Accounting profit is zero","Economic profit is zero","TR equals VC","P equals AVC"],1,"P=ATC → economic profit zero."),q("A positive profit rectangle has price line:",["Below ATC","Above ATC","Equal to AVC only","Below AVC"],1,"P above ATC."),q("Which comparison tells profit/loss?",["P vs ATC","P vs AVC","MR vs AFC","TC vs FC only"],0,"P-ATC per unit.")]
+},
+{id:"s6",ico:"🛑",title:"Short-run shutdown rule: P < AVC",min:true,
+ aim:"The key flipped-rule drill: shutdown vs stay open; fixed costs are sunk.",
+ anchor:[
+  "Shutdown is a short-run decision to produce nothing during a specific period.",
+  "In the short run the firm still pays fixed costs even if it shuts down.",
+  "So the only relevant question is: does revenue cover variable cost?",
+  "Rule: shut down if TR < VC, which becomes P < AVC.",
+  "Flip rule: stay open if P ≥ AVC, even if the firm is making an economic loss."
+ ],
+ check:[["If P is below ATC but above AVC, the firm should keep producing in the short run.",true,"Yes. It has a loss, but producing covers variable costs and part of fixed costs."],["Fixed costs should determine the short-run shutdown decision.",false,"No. Fixed costs are sunk in the short run; compare TR with VC or P with AVC."]],
+ formula:"Short run: <b>Shut down if P &lt; AVC</b> | Stay open if P ≥ AVC",
+ rows:[["Inherited house fixed cost","$200/week whether rented or vacant"],["Variable cost if rented","$40/week utilities"],["Rent revenue","$100/week"],["Short-run decision","Rent it: $100 > $40, so it covers VC and $60 of fixed costs"],["Loss comparison","Vacant loss=-$200; renting loss=100-240=-$140, so renting is better"]],
+ note:"Write both directions: P<AVC shut down. P≥AVC produce at MR=MC. Fixed costs are sunk.",
+ traps:[["Loss = shutdown trap","A loss-making firm stays open if P covers AVC."],["ATC threshold trap","ATC is for profit/exit; AVC is for shutdown."],["Sunk-cost trap","Do not say 'rent is expensive so close.' If fixed cost is unavoidable, ignore it for shutdown."]],
+ graph:"shutdown",
+ recall:"Say out loud: 'Short run equals AVC. Long run equals ATC.' Then explain the house example in two sentences.",
+ why:["Why is the shutdown rule P<AVC instead of P<ATC?","Because fixed costs must be paid whether the firm operates or shuts down in the short run. Producing is worthwhile as long as revenue covers variable costs and contributes anything toward fixed costs."],
+ mcq:[
+  q("A firm should shut down in the short run if:",["P < ATC","P < AVC","P > AVC","MR = MC"],1,"Shutdown threshold is AVC."),
+  q("If P=$6, ATC=$10, AVC=$5, the firm should:",["Shut down immediately","Produce in the short run but has a loss","Exit and produce zero immediately","Earn profit"],1,"P>AVC so stay open; P<ATC so loss."),
+  q("At P=AVC, the firm is:",["Indifferent between producing and shutting down","Earning profit","At long-run equilibrium","Unable to calculate MR"],0,"P=AVC is the shutdown point."),
+  q("In the house example, renting for $100 with variable cost $40 and fixed cost $200 means:",["Leave vacant in short run","Rent in short run because revenue covers variable cost","Rent only if revenue covers all costs","Fixed cost is the only relevant cost"],1,"$100 covers $40 variable cost and reduces loss.")
+ ],
+ alt:[q("If P=$4 and AVC=$5, the short-run decision is:",["Produce more","Shut down","Enter market","Break even"],1,"P<AVC."),q("Which cost is sunk in the short run?",["Variable cost","Fixed cost","Marginal revenue","Price"],1,"Fixed costs remain if shut down."),q("The firm's short-run supply curve is MC only above:",["ATC","AVC","AFC","TR"],1,"Below AVC the firm supplies zero.")]
+},
+{id:"s7",ico:"🚪",title:"Long-run exit and entry: P vs ATC",min:false,
+ aim:"Time category precision: shutdown is short run; exit/entry is long run.",
+ anchor:[
+  "Exit is a long-run decision to leave the market completely.",
+  "In the long run the firm can avoid all costs, including fixed costs.",
+  "Exit rule: exit if TR < TC, which becomes P < ATC.",
+  "Entry rule: enter if TR > TC, which becomes P > ATC.",
+  "Zero economic profit happens when P = ATC."
+ ],
+ check:[["Exit is a long-run decision, while shutdown is a short-run decision.",true,"Yes. Shutdown = temporary no output; exit = leave the market."],["A firm enters a market in the long run when P < ATC.",false,"No. P<ATC means losses; firms exit. Entry occurs when P>ATC."]],
+ formula:"Long run: <b>Exit if P &lt; ATC</b> | Enter if P &gt; ATC | Zero economic profit if P = ATC",
+ rows:[["P=$12, ATC=$9","Positive economic profit → entry pressure"],["P=$7, ATC=$9","Economic loss → exit pressure"],["P=$9, ATC=$9","Zero economic profit → no entry/exit pressure"],["Long-run adjustment","Entry increases supply and lowers price; exit lowers supply and raises price"]],
+ note:"Both-ways rule: P>ATC enter; P<ATC exit. Do not swap ATC and AVC.",
+ traps:[["Shutdown vs exit","Short run uses AVC. Long run uses ATC."],["Zero profit panic","Zero economic profit is not business failure; accounting profit can be positive."],["Flipped inequality","If ATC<P, that is the same as P>ATC: firms enter."]],
+ graph:"entryExit",
+ recall:"Write four flips: shut if P<AVC; stay if P≥AVC; exit if P<ATC; enter if P>ATC.",
+ why:["Why can firms stay in business when economic profit is zero?","Economic profit subtracts all opportunity costs. Zero economic profit means owners earn exactly what they could earn elsewhere. Accounting profit can still be positive because accountants do not subtract all implicit costs."],
+ mcq:[
+  q("A firm exits the market in the long run if:",["P < ATC","P > ATC","P < AVC only","MR > MC"],0,"Exit threshold is ATC."),
+  q("If P=$11 and ATC=$8 in a competitive industry, in the long run:",["Firms exit","Firms enter","All firms shut down","Demand disappears"],1,"Positive profit attracts entry."),
+  q("Zero economic profit occurs when:",["P=ATC","P=AVC","P=0","TR=VC only"],0,"P=ATC means TR=TC."),
+  q("The phrase 'ATC is less than price' implies:",["Exit","Entry pressure","Shutdown","No production"],1,"ATC<P means P>ATC, positive profit.")
+ ],
+ alt:[q("If P=$6 and ATC=$9, long-run pressure is:",["Entry","Exit","No change","More fixed cost"],1,"Losses push firms out."),q("Long-run exit differs from shutdown because:",["Exit avoids all costs","Exit is temporary","Shutdown avoids fixed costs","Shutdown is permanent"],0,"Long run all costs variable/avoidable."),q("No entry or exit occurs when firms earn:",["Positive economic profit","Negative economic profit","Zero economic profit","Negative revenue"],2,"Long-run equilibrium.")]
+},
+{id:"s8",ico:"📈",title:"Firm supply curves: MC above AVC vs MC above ATC",min:false,
+ aim:"Precise category mapping: short-run firm supply and long-run firm supply.",
+ anchor:[
+  "For a competitive firm, price equals marginal revenue.",
+  "At each price, the firm supplies the quantity where P = MC if it produces.",
+  "Short-run firm supply is the part of MC above AVC. Below AVC, Q=0.",
+  "Long-run firm supply is the part of MC above ATC. Below ATC, exit.",
+  "This is a category trap: same MC curve, different cutoff depending on time horizon."
+ ],
+ check:[["The short-run supply curve of a competitive firm is the portion of MC above AVC.",true,"Yes. AVC is the shutdown cutoff."],["The long-run supply curve of a firm is the portion of MC above AVC.",false,"No. Long-run firm supply is MC above ATC because exit uses ATC."]],
+ formula:"Short run firm supply = <b>MC above AVC</b> | Long run firm supply = <b>MC above ATC</b>",
+ rows:[["Price = $4 below AVC","Short run: produce 0"],["Price = $6 above AVC but below ATC","Short run: produce; long run: exit pressure"],["Price = $10 above ATC","Produce and earn profit"],["Supply logic","Higher P intersects MC at higher Q"]],
+ note:"Write the two cutoffs as a pair: SR cutoff = AVC; LR cutoff = ATC.",
+ traps:[["One cutoff for everything","Wrong. Time horizon changes the relevant average cost."],["MC whole curve trap","The entire MC is not supply; only the relevant portion above the cutoff."],["Direction trap","If market price rises, the firm's quantity supplied rises along MC."]],
+ graph:"supplyCutoff",
+ recall:"Draw MC with AVC and ATC. Highlight the MC segment above AVC as short-run supply, then above ATC as long-run firm supply.",
+ why:["Why does the MC curve become the supply curve for a competitive firm?","Because P=MR. For each possible price, the firm picks Q where P=MC. Tracing those Q choices along MC gives the supply curve, as long as price is above the relevant shutdown/exit cutoff."],
+ mcq:[
+  q("A competitive firm's short-run supply curve is:",["The entire ATC curve","The MC curve above AVC","The MC curve below AVC","The demand curve"],1,"SR supply = MC above AVC."),
+  q("A competitive firm's long-run supply curve is:",["MC above ATC","MC above AVC","ATC below MC","TR curve"],0,"LR firm supply = MC above ATC."),
+  q("If the market price rises, the individual competitive firm generally:",["Supplies more","Supplies less","Keeps Q fixed","Exits immediately"],0,"Higher P intersects MC at a higher Q."),
+  q("Below minimum AVC in the short run, quantity supplied is:",["Zero","Maximum","Where P=ATC","Where TR=TC"],0,"Firm shuts down.")
+ ],
+ alt:[q("The shutdown point is at the minimum of:",["ATC","AVC","AFC","MR"],1,"P=min AVC is shutdown point."),q("The break-even point is at the minimum of:",["ATC","AVC","AFC","TR"],0,"P=min ATC for efficient scale / zero profit."),q("At P above AVC but below ATC, the firm:",["Produces in short run with loss","Shuts down in short run","Earns profit","Has no variable cost"],0,"Stay open short run, loss overall.")]
+},
+{id:"s9",ico:"🏭",title:"Short-run market supply: fixed number of firms",min:false,
+ aim:"Scale up from one firm to the market without mixing time horizons.",
+ anchor:[
+  "In the short run, the number of firms is fixed.",
+  "Each firm supplies the Q where P=MC, as long as P is above AVC.",
+  "Market supply adds up the quantities supplied by all firms at each price.",
+  "If there are 100 identical firms and each supplies 7 units at $5, market quantity is 700 units.",
+  "Entry and exit do not happen yet in the short run."
+ ],
+ check:[["Short-run market supply is found by adding quantities supplied by existing firms.",true,"Yes. Fixed number of firms, add their Qs horizontally."],["In the short run, firms freely enter until profit is zero.",false,"No. That is long-run adjustment, not short-run fixed-firms supply."]],
+ formula:"Short-run market supply = <b>sum of each existing firm's quantity supplied at each price</b>",
+ rows:[["Number of firms","100 identical maple syrup firms"],["At P=$5, each firm supplies","7 units"],["Market quantity supplied","100 × 7 = 700 units"],["If P rises","each firm moves up MC → each supplies more → market Qs rises"]],
+ note:"Short-run = fixed number of firms. Add firm quantities. Do not talk entry/exit yet.",
+ traps:[["Long-run leak","Do not use entry/exit on a short-run question unless it asks over time."],["Add price trap","Market supply adds quantities, not prices."],["Direction trap","Higher price → more output from each existing firm."]],
+ graph:"marketSupply",
+ recall:"Explain how to build market supply from 100 identical firms in one spoken sentence.",
+ why:["Why does short-run market supply slope upward when the number of firms is fixed?","Because each existing firm increases quantity as price rises along its MC curve. Adding up those higher quantities gives an upward-sloping market supply curve."],
+ mcq:[
+  q("In the short run, the number of firms in a competitive market is:",["Fixed","Always zero","Infinitely adjustable","Set by government"],0,"Short run fixed number of firms."),
+  q("If each of 100 firms supplies 7 units at P=$5, market quantity supplied is:",["7","100","700","500"],2,"100×7=700."),
+  q("Short-run market supply is found by:",["Adding firms' quantities at each price","Adding firms' prices","Using only ATC","Ignoring MC"],0,"Horizontal summation of firm supply quantities."),
+  q("A price increase in the short run causes existing firms to:",["Supply more","Exit immediately","Supply zero","Lower MR below price"],0,"Higher P → higher Q along MC.")
+ ],
+ alt:[q("Short-run supply with fixed firms ignores:",["Existing firms' MC","Entry and exit","Price","Quantity supplied"],1,"Entry/exit is long run."),q("If 50 firms each supply 4 units, market Qs is:",["54","200","46","12.5"],1,"50×4=200."),q("A fixed number of firms means market supply changes because:",["Firms change quantity, not count","Firms enter instantly","Fixed costs disappear","P=0"],0,"Existing firms adjust output.")]
+},
+{id:"s10",ico:"🔁",title:"Long-run market supply and zero economic profit",min:false,
+ aim:"Entry/exit adjustment and the horizontal long-run supply benchmark.",
+ anchor:[
+  "In the long run, firms can enter or exit.",
+  "If price is above ATC, firms earn positive economic profit, so new firms enter.",
+  "Entry increases market supply, which pushes price down.",
+  "If price is below ATC, firms earn losses, so firms exit.",
+  "With identical costs, long-run supply is horizontal at minimum ATC, where P=ATC and firms earn zero economic profit."
+ ],
+ check:[["Entry increases market supply and pushes price downward.",true,"Yes. More firms shift supply right."],["Long-run equilibrium with identical firms occurs with positive economic profit.",false,"No. Positive economic profit attracts entry until profit returns to zero."]],
+ formula:"Long-run equilibrium: <b>P = minimum ATC = MC</b> → zero economic profit",
+ rows:[["If P > ATC","Profit → entry → supply right → P falls"],["If P < ATC","Loss → exit → supply left → P rises"],["End point","P = ATC and MC = ATC at efficient scale"],["Why firms stay","Economic profit zero but accounting profit can be positive"]],
+ note:"Say the story both ways: profit invites entry; losses force exit. Entry lowers price; exit raises price.",
+ traps:[["Zero profit misunderstanding","Zero economic profit includes opportunity cost; it is not zero accounting profit."],["Direction flip","Entry increases supply and lowers price; exit decreases supply and raises price."],["Long-run supply always horizontal","Only in the constant-cost benchmark. It can slope upward if input prices rise as industry expands."]],
+ graph:"longRun",
+ recall:"Tell the full chain: P>ATC → profit → entry → S right → price down → zero economic profit.",
+ why:["Why does entry erase positive economic profit in a competitive market?","Because free entry lets new firms chase profit. As firms enter, market supply increases, price falls, and each firm's profit shrinks until P equals ATC."],
+ mcq:[
+  q("If firms earn positive economic profit in the long run, then:",["Firms enter","Firms exit","Market supply shifts left","Price rises forever"],0,"Profit attracts entry."),
+  q("Entry into a competitive market shifts market supply:",["Right","Left","Nowhere","Down along demand only"],0,"More sellers increase supply."),
+  q("With identical costs, long-run supply is horizontal at:",["Minimum AVC","Minimum ATC","Maximum MC","Total revenue"],1,"Zero-profit condition at min ATC."),
+  q("Zero economic profit means:",["Accounting profit is necessarily zero","Owners earn exactly their opportunity cost","Firms shut down","Price is below AVC"],1,"Economic costs include opportunity costs.")
+ ],
+ alt:[q("If firms face losses in long run, market supply will:",["Shift right","Shift left","Stay fixed forever","Become demand"],1,"Exit reduces supply."),q("Exit tends to make market price:",["Rise","Fall","Equal zero","Become irrelevant"],0,"Less supply raises price."),q("Long-run equilibrium for identical competitive firms has:",["P=ATC","P<AVC","MR>MC forever","Positive economic profit"],0,"Zero economic profit.")]
+},
+{id:"s11",ico:"🌊",title:"Demand shifts: short run vs long run",min:false,
+ aim:"Causal chain practice: demand shock, short-run profit/loss, entry/exit, long-run adjustment.",
+ anchor:[
+  "Because entry and exit take time, the market responds differently in the short run and long run.",
+  "Demand increase: short-run price rises, firms earn profit, firms enter, supply shifts right, price moves back down toward long-run level.",
+  "Demand decrease: short-run price falls, firms earn losses, firms exit, supply shifts left, price moves back up toward long-run level.",
+  "For a constant-cost industry, long-run price returns to minimum ATC, but total market quantity changes because the number of firms changes.",
+  "Your notes emphasize the decrease case: industry output falls in the long run, while surviving firms return to q0."
+ ],
+ check:[["After a demand decrease, short-run price falls and firms may suffer losses.",true,"Yes. P falls below ATC, causing exit pressure."],["After a demand decrease, long-run exit shifts market supply right.",false,"No. Exit shifts supply left because fewer firms remain."]],
+ formula:"Demand ↓ → P↓ → losses → <b>exit</b> → S left → P rises back toward min ATC",
+ rows:[["Initial long-run equilibrium","P0, firm q0, market Q0, zero economic profit"],["Demand decreases","D0 → D1, P falls to P1"],["Short-run result","Firm output falls, market output falls, losses appear"],["Long-run adjustment","Firms exit, market supply shifts left, price returns toward P0"]],
+ note:"For direction: demand up = entry; demand down = exit. Entry shifts S right; exit shifts S left.",
+ traps:[["Industry vs firm output","After demand decreases and firms exit, industry output falls, but surviving firms can return to original q."],["Supply-shift direction","Entry → right. Exit → left. Say it before looking at choices."],["Short-run vs long-run price","Constant-cost benchmark: price changes in short run but returns to min ATC in long run."]],
+ graph:"demandShift",
+ recall:"Explain both chains out loud: demand increase and demand decrease. Use arrows.",
+ why:["Why can surviving firms produce more in the long run after industry demand decreased?","Because some firms exit. The total market is smaller, but the remaining firms face the restored long-run price and move back to their efficient-scale output."],
+ mcq:[
+  q("A decrease in demand initially causes market price to:",["Rise","Fall","Stay fixed","Become zero"],1,"Demand left lowers price in the short run."),
+  q("If price falls below ATC after a demand decrease, in the long run firms will:",["Enter","Exit","All earn profit","Raise demand"],1,"Losses cause exit."),
+  q("Exit shifts market supply:",["Left","Right","Down demand","Nowhere"],0,"Fewer firms → lower supply."),
+  q("In a constant-cost industry after long-run adjustment, price tends to return to:",["Minimum ATC","Maximum ATC","Zero","Minimum AFC"],0,"Horizontal LR supply at min ATC.")
+ ],
+ alt:[q("A demand increase creates short-run:",["Profit and entry pressure","Loss and exit pressure","Shutdown always","No change"],0,"Higher price → P>ATC."),q("Entry after a demand increase shifts supply:",["Right","Left","Up demand","Nowhere"],0,"More firms."),q("In the long run, total market output after a permanent demand increase is:",["Higher","Lower","Always zero","Unchanged"],0,"More firms produce more total output.")]
+},
+{id:"s12",ico:"🏆",title:"Quiz strategy: flipped rules, graph panic, and no blanks",min:false,
+ aim:"Turn knowledge into quiz behavior for a 21-question multiple-choice quiz.",
+ anchor:[
+  "Your prior pattern: calculations are often fine, but precise vocabulary, flipped logic, graph extraction, and blanks cost points.",
+  "Before answering, identify the category: revenue term, marginal quantity decision, profit outcome, shutdown, exit/entry, or market adjustment.",
+  "For graph questions, always perform the coordinate check before reading answer choices.",
+  "For rule questions, immediately say the opposite: shut if P<AVC; stay if P≥AVC; exit if P<ATC; enter if P>ATC.",
+  "For any question you cannot solve, eliminate one obviously wrong answer and guess. Never leave a blank."
+ ],
+ check:[["If you cannot solve a graph question, leaving it blank is better than guessing.",false,"No. Blank is guaranteed zero. Eliminate at least one impossible choice and guess."],["Before doing a shutdown/exit question, identify whether it is short run or long run.",true,"Yes. Time horizon tells you AVC vs ATC."]],
+ formula:"Quiz sequence: <b>Category → Graph coordinates → Rule flip → Direction check → Answer every question</b>",
+ rows:[["21-question target","Aim 16+/21 first, then improve"],["If stuck","Eliminate one choice and guess"],["Graph panic move","Find MR=MC before anything else"],["Rule panic move","Short run = AVC; long run = ATC"]],
+ note:"Write this on scrap paper before the quiz: P=MR=AR; Q from MR=MC; profit from P vs ATC; shutdown from AVC; exit from ATC.",
+ traps:[["Sound-right answers","MCQ distractors often use true terms in the wrong category."],["Inequality flip","Translate ATC<P into P>ATC before deciding."],["Blank trap","A guessed answer can be right. A blank cannot."]],
+ graph:"strategy",
+ recall:"Recite the five-line scrap-paper checklist from memory.",
+ why:["Why is the 'category first' habit so important for Chapter 14?","Because many answer choices use real Chapter 14 vocabulary but in the wrong decision category. If you know whether the question is about quantity, profit, shutdown, exit, or market adjustment, you know which curve/formula matters."],
+ mcq:[
+  q("Which is the best first move on a firm graph question?",["Find MR=MC","Look for largest ATC","Guess immediately","Use market demand only"],0,"Q comes from MR=MC."),
+  q("Which rule pair is correct?",["Shutdown uses ATC; exit uses AVC","Shutdown uses AVC; exit uses ATC","Both use AFC","Both use TR only"],1,"Short-run shutdown = AVC; long-run exit = ATC."),
+  q("If you are stuck on a multiple-choice graph question, your best test-taking move is:",["Leave blank","Eliminate an impossible option and guess","Choose every option","Skip the quiz"],1,"No blanks."),
+  q("The scrap-paper anchor P=MR=AR applies to:",["Competitive firms","Monopolies only","Common resources","Income elasticity"],0,"For competitive firms.")
+ ],
+ alt:[q("The category 'how much to produce' points to:",["MR and MC","P and ATC","P and AVC","Entry and exit"],0,"Quantity rule."),q("The category 'am I profitable?' points to:",["P and ATC","P and AVC","MC and AFC","Market demand only"],0,"Profit outcome."),q("The category 'should I temporarily close?' points to:",["P and AVC","P and ATC","Demand and supply","Accounting profit only"],0,"Shutdown.")]
+}
+];
+
+function q(text,opts,c,exp){return{text,opts,c,exp}}
+
+const VAULT=[
+ ...make("vocab",[
+  q("In a perfectly competitive market, firms sell products that are:",["Unique","Identical or homogeneous","Patented","Impossible to compare"],1,"Perfect competition assumes largely identical goods."),
+  q("A competitive firm's marginal revenue is constant because:",["It can sell each unit at the same market price","Its MC is constant","ATC is flat","It chooses market price"],0,"P is given, so every unit adds P."),
+  q("The phrase 'revenue per unit' means:",["MR","AR","MC","AVC"],1,"Average revenue."),
+  q("The phrase 'additional revenue from one more unit' means:",["MR","AR","ATC","AFC"],0,"Marginal revenue."),
+  q("For a competitive firm, which equality is true?",["P=MR=AR","P=MC always","P=ATC always","TR=TC always"],0,"Core vocabulary anchor."),
+  q("A price taker is a firm that:",["Accepts market price","Sets market price","Always earns profit","Always shuts down"],0,"Price taker = no market power."),
+  q("Free entry and exit mainly matters for:",["Long-run adjustment","Short-run fixed costs only","Calculating AR","Drawing AVC"],0,"Entry/exit drives long-run zero profit."),
+  q("If a question says 'typical unit's revenue,' it is asking for:",["AR","MR","MC","TC"],0,"Typical/per unit = average revenue."),
+  q("If a firm is small relative to the market, it usually:",["Takes price as given","Sets the demand curve","Faces upward demand","Controls supply alone"],0,"Small relative to market → price taker."),
+  q("Total revenue equals:",["P×Q","TC-Q","ATC/Q","MR-MC"],0,"TR=P×Q.")
+ ]),
+ ...make("margin",[
+  q("A firm should increase output if:",["MR>MC","MR<MC","P<AVC","P<ATC"],0,"MR>MC means extra unit adds profit."),
+  q("A firm should decrease output if:",["MR<MC","MR>MC","P>AVC","AR=P"],0,"MC>MR means extra unit hurts profit."),
+  q("If MR=$5 and MC=$4.90 for unit 7, that unit:",["Adds $0.10 to profit","Lowers profit by $0.10","Causes shutdown","Means exit"],0,"MR-MC=0.10."),
+  q("If MR=$5 and MC=$7 for unit 8, unit 8:",["Should be produced","Should not be produced","Is free","Creates zero profit"],1,"MC exceeds MR."),
+  q("In the maple table, profit is highest at Q=7. This matches:",["MR still exceeds MC for 7, but not for 8","TC is lowest at Q=7","ATC equals zero","P<AVC"],0,"Q=7 is the last profitable unit."),
+  q("Profit maximization by total method means choose Q where:",["TR-TC is greatest","TC is lowest","TR is lowest","ATC is highest"],0,"Max profit = max TR-TC."),
+  q("MR=MC is best understood as:",["A marginal stopping rule","An accounting profit formula","A shutdown formula","A demand-shift rule"],0,"It tells when to stop expanding output."),
+  q("If MC is below MR, profit is still:",["Increasing with another unit","Decreasing with another unit","Always negative","Impossible"],0,"Extra revenue > extra cost."),
+  q("If MC exactly equals MR, producing another small unit:",["Adds no extra profit at the margin","Always creates loss","Forces entry","Eliminates fixed costs"],0,"Marginal net gain is zero."),
+  q("Which variable chooses quantity for a competitive firm?",["MR and MC","P and ATC","P and AVC only","Income elasticity"],0,"Quantity = MR=MC.")
+ ]),
+ ...make("graph",[
+  q("Graph profit requires which three values?",["P, ATC, Q","AVC, AFC, income","TR, VC, demand only","AFC, MR, tax"],0,"Profit box = (P-ATC)×Q."),
+  q("The first coordinate step is:",["Find MR=MC","Find min AVC","Find market demand intercept","Find maximum ATC"],0,"Start with Q* from MR=MC."),
+  q("If price is above ATC at Q*, the box represents:",["Profit","Loss","Shutdown","Exit only"],0,"P>ATC."),
+  q("If price is below ATC at Q*, the box represents:",["Loss","Profit","Zero profit","A subsidy"],0,"P<ATC."),
+  q("If P=$9, ATC=$9, Q=70, economic profit equals:",["$0","$70","$630","-$70"],0,"(9-9)×70=0."),
+  q("If P=$11, ATC=$8, Q=60, profit equals:",["$180","$480","$660","$3"],0,"(11-8)×60=180."),
+  q("A common graph error is using:",["ATC at Q*","P at Q*","ATC from the wrong quantity","Q from MR=MC"],2,"ATC must be read at the chosen Q."),
+  q("The height of a loss rectangle is:",["ATC-P","Q","TC","MR"],0,"For loss, ATC exceeds P; magnitude height is ATC-P."),
+  q("The width of profit/loss rectangle is:",["Q","P","ATC","AVC"],0,"Width is quantity."),
+  q("MC crossing ATC at minimum ATC matters because:",["It locates efficient scale/break-even benchmark","It means profit is always zero","It makes AVC irrelevant","It sets demand"],0,"Min ATC is efficient scale and LR zero-profit price.")
+ ]),
+ ...make("shutdown",[
+  q("Shutdown is a:",["Short-run decision","Long-run decision","Market-demand shift","Profit formula"],0,"Shutdown is temporary no production."),
+  q("Exit is a:",["Long-run decision","Short-run lunch closure","Marginal revenue formula","Fixed cost"],0,"Exit means leave the market."),
+  q("Shut down if:",["TR<VC","TR>VC","P>ATC","MR>MC"],0,"Equivalent to P<AVC."),
+  q("Stay open in short run if:",["P≥AVC","P<AVC","P=0","ATC>P always"],0,"Covers variable cost."),
+  q("Exit in long run if:",["P<ATC","P>ATC","P>AVC only","MR=AR"],0,"Cannot cover total opportunity cost."),
+  q("Enter in long run if:",["P>ATC","P<ATC","P<AVC","TR<VC"],0,"Positive economic profit attracts entry."),
+  q("If P=$7, AVC=$6, ATC=$10, the firm should:",["Produce short run, exit pressure long run","Shut down short run","Earn positive profit","Enter more firms immediately"],0,"P>AVC so produce; P<ATC so loss."),
+  q("If P=$4, AVC=$6, ATC=$9, the firm should:",["Shut down short run","Produce because P<ATC","Enter","Earn profit"],0,"P<AVC."),
+  q("Fixed costs in the short-run shutdown decision are:",["Sunk","The only relevant cost","Variable","Equal to MR"],0,"Ignore sunk fixed costs for shutdown."),
+  q("At P=AVC, the firm:",["Is indifferent between shutdown and operating","Earns positive profit","Must exit instantly","Has P=ATC"],0,"Shutdown point.")
+ ]),
+ ...make("market",[
+  q("Short-run market supply assumes:",["Fixed number of firms","Free entry already completed instantly","No marginal costs","Demand is fixed forever"],0,"Firm count fixed in short run."),
+  q("Long-run market supply allows:",["Entry and exit","No price changes","No supply curve","Only one firm"],0,"Long run = firms enter/exit."),
+  q("Positive profit causes:",["Entry","Exit","Shutdown below AVC","Demand to disappear"],0,"Profit attracts entrants."),
+  q("Losses cause:",["Exit","Entry","Supply right","Price to fall forever"],0,"Losses push firms out."),
+  q("Entry shifts supply:",["Right","Left","Nowhere","Into demand"],0,"More sellers."),
+  q("Exit shifts supply:",["Left","Right","Nowhere","Up demand"],0,"Fewer sellers."),
+  q("In a constant-cost competitive industry, LR supply is:",["Horizontal at min ATC","Vertical at max MC","Downward sloping","Equal to market demand"],0,"Mankiw benchmark."),
+  q("A long-run supply curve may slope upward if:",["Input prices rise as the industry expands","Firms have no costs","Demand is vertical","Entry is impossible"],0,"Increasing-cost industry."),
+  q("After demand increases, short-run price:",["Rises","Falls","Is always zero","Becomes ATC immediately"],0,"Demand right pushes price up."),
+  q("After demand decreases, losses lead to:",["Exit and supply shifting left","Entry and supply shifting right","Permanent profit","Higher demand"],0,"Losses → exit.")
+ ])
+];
+function make(cat,arr){return arr.map(x=>({...x,cat}))}
+
+const FLASH=[
+ ["Price taker","A competitive firm accepts the market price as given; it chooses Q, not P."],
+ ["P = MR = AR","For competitive firms, price equals marginal revenue and average revenue."],
+ ["Quantity rule","Produce where MR=MC, or the last unit where MR≥MC in a table."],
+ ["Profit rectangle","Profit=(P-ATC)×Q. First find Q from MR=MC, then read P and ATC."],
+ ["Shutdown rule","Short run: shut down if P<AVC; stay open if P≥AVC."],
+ ["Exit rule","Long run: exit if P<ATC; enter if P>ATC."],
+ ["Supply curve cutoff","Short-run firm supply = MC above AVC. Long-run firm supply = MC above ATC."],
+ ["Entry/exit chain","Profit→entry→supply right→price down. Loss→exit→supply left→price up."],
+ ["Zero economic profit","Economic profit zero means accounting profit can still be positive because opportunity costs are included."],
+ ["No blanks","If stuck, find MR=MC, eliminate one wrong answer, guess."]
+];
+
+function unlocked(i){return i===0 || st(MODULES[i-1].id).mastered}
+function vaultUnlocked(){return st("s6").mastered}
+function renderAll(){renderSurvey();renderNav();renderModules();renderFlash();renderVaultStatus();renderHistory();updateProgress();if(state.bd)document.body.classList.add("bodydouble");document.getElementById("bd").checked=!!state.bd;if(state.savedAt)document.getElementById("saveState").textContent="Saved: "+state.savedAt}
+
+function renderSurvey(){
+ const el=document.getElementById("surveyList");
+ el.innerHTML=SURVEY.map((x,i)=>`<label class="toggle"><input type="checkbox" data-survey="${i}" ${state.survey[i]?"checked":""}> ${x}</label>`).join("");
+ el.querySelectorAll("input").forEach(inp=>inp.onchange=e=>{state.survey[e.target.dataset.survey]=e.target.checked;saveState()});
+}
+function renderNav(){
+ const el=document.getElementById("stageNav");
+ el.innerHTML=MODULES.map((m,i)=>{
+  const s=st(m.id),u=unlocked(i),active=(state.current||0)===i;
+  return `<div class="stage-card ${s.mastered?"done":""} ${!u?"locked":""} ${active?"active":""}" data-stage="${i}">
+   <small>Stage ${i+1}${m.min?" · Day Minimum":""}</small><h3>${m.ico} ${m.title}</h3><span class="status">${s.mastered?"mastered":u?"open":"locked"}</span>
+  </div>`
+ }).join("");
+ el.querySelectorAll(".stage-card").forEach(card=>card.onclick=()=>{const i=+card.dataset.stage;if(!unlocked(i))return toast("Locked: finish the previous stage drill first.");state.current=i;saveState();renderAll();setTimeout(()=>document.getElementById("module-"+MODULES[i].id).scrollIntoView({block:"start"}),40)});
+}
+function renderModules(){
+ const root=document.getElementById("modules");
+ root.innerHTML=MODULES.map((m,i)=>renderModule(m,i)).join("");
+ MODULES.forEach((m,i)=>wireModule(m,i));
+}
+function renderModule(m,i){
+ const s=st(m.id),u=unlocked(i),active=(state.current||0)===i;
+ if(!u)return `<section class="block module ${active?"active":""}" id="module-${m.id}"><div class="locked-box">Stage ${i+1} is locked. Master Stage ${i} first.</div></section>`;
+ const gateOpen=s.gate;
+ return `<section class="block module ${active?"active":""}" id="module-${m.id}">
+  <div class="module-head"><div class="big-ico">${m.ico}</div><div><div class="micro">Stage ${i+1} of 12 ${m.min?" · DAY MINIMUM CHECKPOINT":""}</div><h2>${m.title}</h2><div class="micro">${m.aim}</div></div></div>
+  ${m.min?`<div class="phase why"><div class="label">⭐ Day Minimum marker</div><b>Finish this stage today if you need a stopping point.</b> After this, you have the core Chapter 14 survival tools: P=MR=AR, MR=MC, graph profit, P vs ATC, and P vs AVC.</div>`:""}
+  <div class="phase read"><div class="label">👁 Phase 0 — Concept Anchor</div><ul>${m.anchor.map(x=>`<li>${x}</li>`).join("")}</ul>${graph(m.graph)}</div>
+  <div class="phase gate"><div class="label">🔑 Concept Check Gate — pass both</div>${m.check.map((c,ci)=>`<div class="tf" data-ci="${ci}"><div class="q">${ci+1}. ${c[0]}</div><div class="tf-row"><button data-tf="true">True</button><button data-tf="false">False</button></div><div class="fb">${c[2]}</div></div>`).join("")}</div>
+  <div class="${gateOpen?"":"hide"} gated-${m.id}">
+   <div class="phase write"><div class="label">✏️ Phase 1 — Formula + real course numbers</div><div class="formula">${m.formula}</div><div class="worked">${m.rows.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div><div class="write-note"><b>Notebook line:</b> ${m.note}</div></div>
+   <div class="phase traps"><div class="label">⚠️ Phase 2 — Distractor breakdown</div>${m.traps.map(t=>`<div class="trap"><b>${t[0]}:</b> ${t[1]}</div>`).join("")}</div>
+   <div class="phase drill"><div class="label">🎯 Phase 3 — MCQ Drill (need 3/4)</div><div id="drill-${m.id}"></div></div>
+   <div class="recall"><b>🧠 Active recall:</b> ${m.recall}</div>
+   <div class="phase why"><div class="label">💡 WHY question</div><div class="q">${m.why[0]}</div><textarea placeholder="Type or say your answer first. Then reveal."></textarea><button data-why="${m.id}">Reveal model answer</button><div class="model" id="why-${m.id}">${m.why[1]}</div></div>
+  </div>
+  <div class="module-actions"><button class="ghost" data-prev="${i}">← Previous stage</button><button data-next="${i}">Next stage →</button></div>
+ </section>`;
+}
+function wireModule(m,i){
+ const root=document.getElementById("module-"+m.id); if(!root)return; const s=st(m.id);
+ root.querySelectorAll(".tf").forEach(tf=>{
+  const ci=+tf.dataset.ci, ans=m.check[ci][1];
+  if(s.gateAns[ci]!==undefined)markTF(tf,s.gateAns[ci]===ans,s.gateAns[ci]);
+  tf.querySelectorAll("button[data-tf]").forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.tf==="true";s.gateAns[ci]=pick;markTF(tf,pick===ans,pick);if(m.check.every((c,k)=>s.gateAns[k]===c[1])){s.gate=true;saveState();toast("Gate passed. Formula and drill unlocked.");renderAll()}else saveState()});
+ });
+ root.querySelectorAll("[data-why]").forEach(b=>b.onclick=()=>document.getElementById("why-"+b.dataset.why).classList.add("show"));
+ root.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>{state.current=Math.max(0,i-1);saveState();renderAll()});
+ root.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{if(i<MODULES.length-1 && unlocked(i+1)){state.current=i+1;saveState();renderAll()}else toast("Next stage is locked until this drill is mastered.")});
+ if(s.gate)renderDrill(m);
+ if(m.graph==="profitLab")wireProfitLab();
+}
+function markTF(tf,correct,pick){
+ const fb=tf.querySelector(".fb");fb.classList.add("show",correct?"ok":"no");fb.classList.remove(correct?"no":"ok");
+ tf.querySelectorAll("button[data-tf]").forEach(b=>b.classList.remove("picked-good","picked-bad"));
+ const picked=tf.querySelector(`button[data-tf="${pick}"]`);if(picked)picked.classList.add(correct?"picked-good":"picked-bad");
+}
+function renderDrill(m){
+ const s=st(m.id), pool=s.alt?m.alt:m.mcq, need=3, el=document.getElementById("drill-"+m.id); if(!el)return;
+ el.innerHTML=`${s.alt?`<div class="score-card">Retry set: fresh questions. Get ${need}/${pool.length}.</div>`:""}${pool.map((x,qi)=>renderQ(x,qi,`main-${m.id}`)).join("")}<div class="toolbar"><span id="score-${m.id}">Answered 0/${pool.length}</span><button id="sub-${m.id}" disabled>Submit drill</button></div><div class="score-card hide" id="res-${m.id}"></div>`;
+ wireQuestions(el,pool,`main-${m.id}`,(score,total)=>{
+  const res=document.getElementById("res-"+m.id);res.classList.remove("hide");
+  if(score>=need){res.innerHTML=`✅ Passed ${score}/${total}. Stage mastered.`;s.mastered=true;saveState();toast("Stage mastered. Next stage unlocked.");renderAll()}
+  else{res.innerHTML=`Not yet: ${score}/${total}. Re-read traps, then retry.`;s.alt=true;saveState();setTimeout(()=>renderAll(),1200)}
+ },`score-${m.id}`,`sub-${m.id}`);
+}
+function renderQ(x,qi,prefix){return `<div class="mcq" data-prefix="${prefix}" data-qi="${qi}"><div class="q">${qi+1}. ${x.text}</div>${x.opts.map((o,oi)=>`<button class="opt" data-oi="${oi}"><span class="k">${letters[oi]}</span>${o}</button>`).join("")}<div class="exp">${x.exp}</div></div>`}
+function wireQuestions(scope,pool,prefix,onDone,scoreId,submitId){
+ const answers={};
+ scope.querySelectorAll(`.mcq[data-prefix="${prefix}"]`).forEach(card=>{
+  const qi=+card.dataset.qi, correct=pool[qi].c;
+  card.querySelectorAll(".opt").forEach(opt=>opt.onclick=()=>{
+   if(card.dataset.done)return; card.dataset.done=1; const oi=+opt.dataset.oi; answers[qi]=(oi===correct);
+   card.querySelectorAll(".opt").forEach(o=>{o.disabled=true;if(+o.dataset.oi===correct)o.classList.add("correct")});
+   if(oi!==correct)opt.classList.add("wrong");card.querySelector(".exp").classList.add("show");
+   document.getElementById(scoreId).textContent=`Answered ${Object.keys(answers).length}/${pool.length}`;
+   if(Object.keys(answers).length===pool.length)document.getElementById(submitId).disabled=false;
+  });
+ });
+ document.getElementById(submitId).onclick=()=>onDone(Object.values(answers).filter(Boolean).length,pool.length);
+}
+
+function graph(type){
+ if(type==="marketFirm")return `<div class="graphbox"><svg viewBox="0 0 430 240"><line x1="45" y1="195" x2="405" y2="195" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="195" stroke="#5b6ab0"/><path d="M70 55 L365 180" stroke="#51c7ff" stroke-width="3" fill="none"/><path d="M230 45 L390 45" stroke="#44dc9d" stroke-width="4" class="animated-line"/><text x="77" y="48" fill="#51c7ff">Market demand slopes down</text><text x="233" y="37" fill="#44dc9d">Firm demand = P = MR</text><text x="12" y="110" fill="#a9b4df" transform="rotate(-90 15,110)">Price</text><text x="190" y="224" fill="#a9b4df">Quantity</text></svg><div class="caption">Moving line reminder: the individual firm takes one horizontal price line.</div></div>`;
+ if(type==="revenue")return `<div class="graphbox"><svg viewBox="0 0 420 230"><line x1="45" y1="190" x2="390" y2="190" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="190" stroke="#5b6ab0"/><path d="M45 190 L350 50" stroke="#8ea0ff" stroke-width="4"/><text x="315" y="48" fill="#8ea0ff">TR = 5Q</text><path d="M55 120 L370 120" stroke="#44dc9d" stroke-width="3" class="animated-line"/><text x="250" y="112" fill="#44dc9d">MR = AR = $5</text></svg><div class="caption">TR rises by $5 per unit; MR and AR stay at $5.</div></div>`;
+ if(type==="mrmc")return `<div class="graphbox"><svg viewBox="0 0 430 240"><line x1="45" y1="200" x2="400" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M70 175 C140 165 205 125 330 35" stroke="#ff6b8a" stroke-width="4" fill="none"/><path d="M55 105 L375 105" stroke="#44dc9d" stroke-width="4" class="animated-line"/><circle cx="215" cy="105" r="5" fill="#fff"/><line x1="215" y1="105" x2="215" y2="200" stroke="#fff" stroke-dasharray="4 4"/><text x="220" y="96" fill="#fff">MR=MC → Q*</text><text x="334" y="35" fill="#ff6b8a">MC</text><text x="58" y="96" fill="#44dc9d">MR=P</text></svg><div class="caption">Quantity is chosen where the horizontal MR line hits rising MC.</div></div>`;
+ if(type==="profitLab")return `<div class="graphbox lab-grid"><div><svg id="profitSvg" viewBox="0 0 430 260"><line x1="50" y1="215" x2="400" y2="215" stroke="#5b6ab0"/><line x1="50" y1="25" x2="50" y2="215" stroke="#5b6ab0"/><path d="M70 165 C150 118 225 105 270 112 C320 120 360 93 390 60" stroke="#44dc9d" stroke-width="4" fill="none"/><path d="M72 195 C145 178 205 140 252 105 C300 68 345 43 385 28" stroke="#ff6b8a" stroke-width="4" fill="none"/><rect id="profitRect" x="202" y="98" width="84" height="55" fill="rgba(68,220,157,.28)" stroke="#44dc9d"/><line id="priceLine" x1="55" y1="98" x2="390" y2="98" stroke="#ffd166" stroke-width="3" class="animated-line"/><line id="qLine" x1="286" y1="98" x2="286" y2="215" stroke="#fff" stroke-dasharray="4 4"/><text x="356" y="56" fill="#44dc9d">ATC</text><text x="356" y="30" fill="#ff6b8a">MC</text><text id="pTxt" x="58" y="91" fill="#ffd166">P=$10</text><text id="qTxt" x="270" y="236" fill="#fff">Q=80</text></svg><div class="caption">Interactive coordinate lab: move price; watch Q and profit box change.</div></div><div><label>Market price: <b id="labP">$10</b><input class="range" id="priceRange" type="range" min="5" max="14" value="10"></label><div class="metric">Step 1: MR=MC gives <b id="labQ">Q=80</b></div><div class="metric">Step 2: read ATC at Q*: <b id="labATC">ATC=$7</b></div><div class="metric">Step 3: profit: <b id="labProfit">($10-$7)×80=$240</b></div></div></div>`;
+ if(type==="outcomes")return `<div class="graphbox"><svg viewBox="0 0 430 245"><line x1="45" y1="200" x2="400" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M70 145 C145 105 220 92 272 101 C322 109 360 80 390 52" stroke="#44dc9d" stroke-width="4" fill="none"/><path d="M55 70 L390 70" stroke="#44dc9d" stroke-width="3"/><path d="M55 101 L390 101" stroke="#ffd166" stroke-width="3"/><path d="M55 145 L390 145" stroke="#ff6b8a" stroke-width="3"/><text x="305" y="64" fill="#44dc9d">profit P&gt;ATC</text><text x="305" y="96" fill="#ffd166">break-even</text><text x="305" y="139" fill="#ff6b8a">loss P&lt;ATC</text></svg><div class="caption">Same Q logic; outcome changes by where price sits relative to ATC.</div></div>`;
+ if(type==="shutdown")return `<div class="graphbox"><svg viewBox="0 0 430 245"><line x1="45" y1="200" x2="400" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M75 155 C130 125 190 113 230 115 C290 120 342 94 382 65" stroke="#ffb454" stroke-width="4" fill="none"/><path d="M80 180 C140 160 205 128 260 92 C305 62 350 40 388 28" stroke="#ff6b8a" stroke-width="4" fill="none"/><line x1="55" y1="150" x2="390" y2="150" stroke="#ff6b8a" stroke-width="3" class="animated-line"/><line x1="55" y1="112" x2="390" y2="112" stroke="#44dc9d" stroke-width="3"/><text x="292" y="145" fill="#ff6b8a">below AVC → shut</text><text x="285" y="105" fill="#44dc9d">above AVC → produce</text><text x="355" y="63" fill="#ffb454">AVC</text><text x="355" y="26" fill="#ff6b8a">MC</text></svg><div class="caption">AVC is the short-run cutoff; fixed costs are already sunk.</div></div>`;
+ if(type==="entryExit")return `<div class="graphbox"><svg viewBox="0 0 430 245"><line x1="45" y1="200" x2="400" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M70 145 C145 105 220 92 272 101 C322 109 360 80 390 52" stroke="#44dc9d" stroke-width="4" fill="none"/><line x1="55" y1="66" x2="390" y2="66" stroke="#44dc9d" stroke-width="3"/><line x1="55" y1="145" x2="390" y2="145" stroke="#ff6b8a" stroke-width="3"/><text x="272" y="60" fill="#44dc9d">P&gt;ATC → enter</text><text x="272" y="139" fill="#ff6b8a">P&lt;ATC → exit</text></svg><div class="caption">ATC is the long-run cutoff for entry and exit.</div></div>`;
+ if(type==="supplyCutoff")return `<div class="graphbox"><svg viewBox="0 0 430 245"><line x1="45" y1="200" x2="400" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M78 184 C140 166 205 128 260 92 C305 62 350 40 388 28" stroke="#ff6b8a" stroke-width="5" fill="none"/><path d="M75 155 C130 125 190 113 230 115 C290 120 342 94 382 65" stroke="#ffb454" stroke-width="3" fill="none"/><path d="M70 135 C145 103 220 92 272 101 C322 109 360 80 390 52" stroke="#44dc9d" stroke-width="3" fill="none"/><text x="328" y="27" fill="#ff6b8a">MC supply</text><text x="332" y="64" fill="#44dc9d">ATC</text><text x="332" y="90" fill="#ffb454">AVC</text></svg><div class="caption">Same MC curve; cutoff changes: AVC for short run, ATC for long run.</div></div>`;
+ if(type==="marketSupply")return `<div class="graphbox"><svg viewBox="0 0 430 235"><line x1="45" y1="195" x2="400" y2="195" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="195" stroke="#5b6ab0"/><path d="M80 172 C150 155 220 110 345 48" stroke="#ff6b8a" stroke-width="3"/><path d="M110 172 C180 155 250 110 375 48" stroke="#8ea0ff" stroke-width="4" class="sweep"/><text x="82" y="45" fill="#ff6b8a">one firm</text><text x="245" y="34" fill="#8ea0ff">market = sum of firms</text></svg><div class="caption">Market supply adds quantities from all existing firms at each price.</div></div>`;
+ if(type==="longRun")return `<div class="graphbox"><svg viewBox="0 0 430 235"><line x1="45" y1="195" x2="400" y2="195" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="195" stroke="#5b6ab0"/><path d="M55 118 L390 118" stroke="#44dc9d" stroke-width="4" class="animated-line"/><path d="M80 160 C150 115 222 103 270 112 C320 122 360 91 390 62" stroke="#8ea0ff" stroke-width="3"/><text x="270" y="111" fill="#44dc9d">LR supply at min ATC</text><text x="330" y="62" fill="#8ea0ff">ATC</text></svg><div class="caption">Constant-cost benchmark: long-run supply horizontal at minimum ATC.</div></div>`;
+ if(type==="demandShift")return `<div class="graphbox"><svg viewBox="0 0 450 245"><line x1="45" y1="200" x2="410" y2="200" stroke="#5b6ab0"/><line x1="45" y1="25" x2="45" y2="200" stroke="#5b6ab0"/><path d="M85 175 L350 55" stroke="#51c7ff" stroke-width="3"/><path d="M125 175 L390 55" stroke="#51c7ff" stroke-width="3" class="sweep"/><path d="M90 65 L360 160" stroke="#ffb454" stroke-width="3"/><text x="346" y="54" fill="#51c7ff">D shifts</text><text x="315" y="162" fill="#ffb454">S adjusts later</text><path d="M70 118 L390 118" stroke="#44dc9d" stroke-width="2" stroke-dasharray="5 4"/><text x="74" y="110" fill="#44dc9d">LR price returns toward min ATC</text></svg><div class="caption">Demand moves first; entry/exit moves supply later.</div></div>`;
+ if(type==="strategy")return `<div class="graphbox"><svg viewBox="0 0 430 130"><text x="20" y="34" fill="#8ea0ff" font-size="15">1 Category</text><text x="125" y="34" fill="#51c7ff" font-size="15">2 Coordinates</text><text x="260" y="34" fill="#ffd166" font-size="15">3 Rule flip</text><text x="20" y="88" fill="#44dc9d" font-size="15">4 Direction</text><text x="170" y="88" fill="#ff6b8a" font-size="15">5 No blanks</text><path d="M105 30 H115 M245 30 H255 M360 40 C380 70 115 78 145 84" stroke="#fff" fill="none" stroke-dasharray="4 4" class="animated-line"/></svg><div class="caption">Run the same checklist on every MC question.</div></div>`;
+ return "";
+}
+function wireProfitLab(){
+ const r=document.getElementById("priceRange"); if(!r)return;
+ const upd=()=>{const P=+r.value; const Q=30+P*5; const ATC=Math.max(6, Math.round((12-(P-5)*.55)*10)/10); const y=200-P*10; const qx=80+Q*2.3; const atcy=200-ATC*10; const h=Math.abs(atcy-y); const top=Math.min(y,atcy);
+  document.getElementById("labP").textContent="$"+P;document.getElementById("labQ").textContent="Q="+Q;document.getElementById("labATC").textContent="ATC=$"+ATC;
+  document.getElementById("labProfit").textContent=`($${P}-$${ATC})×${Q} = $${Math.round((P-ATC)*Q)}`;
+  const line=document.getElementById("priceLine"),ql=document.getElementById("qLine"),rect=document.getElementById("profitRect"); if(line){line.setAttribute("y1",y);line.setAttribute("y2",y);ql.setAttribute("x1",qx);ql.setAttribute("x2",qx);ql.setAttribute("y1",y);rect.setAttribute("x",Math.min(205,qx));rect.setAttribute("y",top);rect.setAttribute("width",Math.max(25,Math.abs(qx-205)));rect.setAttribute("height",h);rect.setAttribute("fill",P>=ATC?"rgba(68,220,157,.28)":"rgba(255,107,138,.25)");rect.setAttribute("stroke",P>=ATC?"#44dc9d":"#ff6b8a");document.getElementById("pTxt").textContent="P=$"+P;document.getElementById("pTxt").setAttribute("y",y-7);document.getElementById("qTxt").textContent="Q="+Q;document.getElementById("qTxt").setAttribute("x",qx-18)}
+ }; r.oninput=upd; upd();
+}
+function updateProgress(){
+ const done=MODULES.filter(m=>st(m.id).mastered).length;document.getElementById("doneNum").textContent=done;document.getElementById("bar").style.width=(done/MODULES.length*100)+"%";
+}
+function renderVaultStatus(){
+ document.getElementById("vaultLock").classList.toggle("hide",vaultUnlocked());
+ document.getElementById("vaultBody").classList.toggle("hide",!vaultUnlocked());
+}
+function startQuiz(cat){
+ const pool=cat==="mixed"?shuffle(VAULT).slice(0,21):shuffle(VAULT.filter(x=>x.cat===cat)).slice(0,8);
+ const area=document.getElementById("quizArea");
+ area.innerHTML=`<div class="score-card"><b>${cat==="mixed"?"21-question mock quiz":"Category drill"}:</b> Answer every question. No blanks.</div>${pool.map((x,i)=>renderQ(x,i,"vault")).join("")}<div class="toolbar"><span id="vaultScore">Answered 0/${pool.length}</span><button id="vaultSubmit" disabled>Submit quiz</button></div><div id="vaultResult" class="score-card hide"></div>`;
+ wireQuestions(area,pool,"vault",(score,total)=>{const pct=Math.round(score/total*100);const res=document.getElementById("vaultResult");res.classList.remove("hide");res.innerHTML=`Score: <b>${score}/${total}</b> (${pct}%). ${cat==="mixed"&&score>=16?"Friday-ready baseline reached.":"Review wrong explanations, then retry another random set."}`;state.quizHistory.unshift({cat,score,total,date:new Date().toLocaleString()});state.quizHistory=state.quizHistory.slice(0,8);saveState();renderHistory();}, "vaultScore","vaultSubmit");
+}
+function renderHistory(){
+ const el=document.getElementById("quizHistory"); if(!el)return;
+ el.innerHTML=(state.quizHistory||[]).length?`<div class="score-card"><b>Recent quiz scores</b><ul>${state.quizHistory.map(h=>`<li>${h.date}: ${h.cat} — ${h.score}/${h.total}</li>`).join("")}</ul></div>`:"";
+}
+function renderFlash(){
+ document.getElementById("flashdeck").innerHTML=FLASH.map((f,i)=>`<div class="flip"><div class="flip-inner"><div class="face front"><div><small style="color:var(--muted)">tap to flip</small><br><b>${f[0]}</b></div></div><div class="face back">${f[1]}</div></div></div>`).join("");
+ document.querySelectorAll(".flip").forEach(x=>x.onclick=()=>x.classList.toggle("on"));
+}
+
+let timer=25*60,iv=null;
+function drawTimer(){const m=Math.floor(timer/60),s=timer%60;document.getElementById("timer").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+document.getElementById("tStart").onclick=()=>{if(iv)return;iv=setInterval(()=>{timer--;drawTimer();if(timer<=0){clearInterval(iv);iv=null;toast("Sprint done. Take a short break, then continue.")}},1000);toast("Focus sprint started. Explain out loud.")};
+document.getElementById("tPause").onclick=()=>{clearInterval(iv);iv=null};
+document.getElementById("tReset").onclick=()=>{clearInterval(iv);iv=null;timer=25*60;drawTimer()};
+document.getElementById("tBreak").onclick=()=>{clearInterval(iv);iv=null;timer=5*60;drawTimer()};
+document.getElementById("bd").onchange=e=>{state.bd=e.target.checked;document.body.classList.toggle("bodydouble",state.bd);saveState()};
+document.getElementById("saveBtn").onclick=()=>{saveState();toast("Progress saved on this device.")};
+document.getElementById("exportBtn").onclick=()=>{saveState();const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ec120-ch14-progress.json";a.click();URL.revokeObjectURL(a.href)};
+document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{state=JSON.parse(reader.result);saveState();renderAll();toast("Save imported.")}catch(err){toast("Import failed: invalid JSON")}};reader.readAsText(f)};
+document.getElementById("resetBtn").onclick=()=>{if(confirm("Reset all progress in this HTML on this device?")){localStorage.removeItem(KEY);state=loadState();renderAll();toast("Progress reset.")}};
+document.getElementById("openVault").onclick=()=>document.getElementById("vault").scrollIntoView();
+document.querySelectorAll("[data-quiz]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.quiz));
+renderAll();drawTimer();
+</script>
+</body>
+</html>
